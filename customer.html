@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newspaper Customer Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .sidebar {
+            background-color: var(--primary-color);
+            color: white;
+            min-height: 100vh;
+            padding: 0;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.collapsed {
+            width: 70px;
+            min-width: 70px;
+        }
+        
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+        
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+        
+        .sidebar .nav-link {
+            color: var(--light-color);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .dashboard-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .header {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+        }
+        
+        .stats-card .card-icon {
+            color: white;
+        }
+        
+        .action-btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-paused {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-pending {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-overdue {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notification-icon {
+            position: relative;
+        }
+        
+        .form-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .subscription-card {
+            border-left: 4px solid var(--secondary-color);
+            transition: all 0.3s;
+        }
+        
+        .subscription-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .btn-close-white {
+            filter: invert(1);
+        }
+        
+        .logout-btn {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .plan-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .plan-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .plan-card.featured {
+            border: 2px solid var(--secondary-color);
+            transform: scale(1.02);
+        }
+        
+        .bill-card {
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .payment-card {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .delivery-schedule-card {
+            border-left: 4px solid var(--info-color);
+        }
+        
+        .publication-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .publication-item:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .publication-item.selected {
+            background-color: #f8fff8;
+            border-color: #d4edda;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="position-sticky pt-3">
+                    <div class="text-center p-3 border-bottom">
+                        <h4><i class="fas fa-newspaper"></i> <span class="logo-text">NewsDirect</span></h4>
+                        <p class="text-muted logo-text">Customer Portal</p>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-section="dashboard">
+                                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="subscriptions">
+                                <i class="fas fa-newspaper"></i> <span>My Subscriptions</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="billing">
+                                <i class="fas fa-file-invoice-dollar"></i> <span>Billing & Payments</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="delivery">
+                                <i class="fas fa-truck"></i> <span>Delivery Settings</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="publications">
+                                <i class="fas fa-book-open"></i> <span>Browse Publications</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="support">
+                                <i class="fas fa-headset"></i> <span>Support</span>
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link logout-btn" href="#" id="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ml-sm-auto px-4 main-content">
+                <!-- Header -->
+                <div class="header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <button class="toggle-sidebar">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <h2 class="mb-0 d-inline-block ms-2" id="section-title">Customer Dashboard</h2>
+                            <p class="text-muted mb-0 ms-2 d-inline-block">Welcome to your newspaper portal</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="user-info justify-content-end">
+                                <div class="user-avatar">RJ</div>
+                                <div>
+                                    <div>Robert Johnson</div>
+                                    <small class="text-muted">Customer since Jan 2022</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="content-section">
+                    <!-- Stats Cards -->
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-newspaper"></i>
+                                    </div>
+                                    <h3>3</h3>
+                                    <p class="card-text">Active Subscriptions</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+                                    <h3>28</h3>
+                                    <p class="card-text">Deliveries This Month</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </div>
+                                    <h3>$45.00</h3>
+                                    <p class="card-text">Monthly Cost</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <h3>5</h3>
+                                    <p class="card-text">Days Until Next Bill</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-bolt text-warning"></i> Quick Actions</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <button class="btn btn-primary action-btn" data-section="subscriptions">
+                                                <i class="fas fa-edit"></i> Manage Subscriptions
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-success action-btn" data-section="billing">
+                                                <i class="fas fa-credit-card"></i> Make Payment
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-info action-btn" data-section="delivery">
+                                                <i class="fas fa-pause-circle"></i> Pause Delivery
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-warning action-btn" data-section="publications">
+                                                <i class="fas fa-plus-circle"></i> Add Publication
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-secondary action-btn" data-section="subscriptions">
+                                                <i class="fas fa-file-download"></i> Download Invoice
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-danger action-btn" data-section="support">
+                                                <i class="fas fa-headset"></i> Contact Support
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity & Current Subscriptions -->
+                    <div class="row mt-4">
+                        <div class="col-md-8">
+                            <div class="table-container">
+                                <h5><i class="fas fa-history text-primary"></i> Recent Activity</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Activity</th>
+                                                <th>Details</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>2023-05-15</td>
+                                                <td>Payment Received</td>
+                                                <td>Monthly subscription - $45.00</td>
+                                                <td><span class="status-badge status-active">Completed</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-05-10</td>
+                                                <td>Subscription Modified</td>
+                                                <td>Added Sports Weekly</td>
+                                                <td><span class="status-badge status-active">Active</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-05-05</td>
+                                                <td>Delivery Paused</td>
+                                                <td>Vacation: May 10-20</td>
+                                                <td><span class="status-badge status-paused">Paused</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-04-28</td>
+                                                <td>Bill Generated</td>
+                                                <td>May 2023 Subscription</td>
+                                                <td><span class="status-badge status-pending">Pending Payment</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-04-15</td>
+                                                <td>Payment Received</td>
+                                                <td>Monthly subscription - $35.00</td>
+                                                <td><span class="status-badge status-active">Completed</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Current Subscriptions -->
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-newspaper text-info"></i> Current Subscriptions</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="subscription-card p-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6>Daily Times</h6>
+                                                <p class="mb-1 small">Monday - Saturday</p>
+                                                <span class="badge bg-success">Active</span>
+                                            </div>
+                                            <span class="fw-bold">$25.00/mo</span>
+                                        </div>
+                                    </div>
+                                    <div class="subscription-card p-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6>Sunday Herald</h6>
+                                                <p class="mb-1 small">Sunday Only</p>
+                                                <span class="badge bg-success">Active</span>
+                                            </div>
+                                            <span class="fw-bold">$10.00/mo</span>
+                                        </div>
+                                    </div>
+                                    <div class="subscription-card p-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6>Sports Weekly</h6>
+                                                <p class="mb-1 small">Friday Edition</p>
+                                                <span class="badge bg-success">Active</span>
+                                            </div>
+                                            <span class="fw-bold">$10.00/mo</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Notifications -->
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-bell text-warning"></i> Notifications</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Bill Reminder</h6>
+                                                <small>2 days ago</small>
+                                            </div>
+                                            <p class="mb-1">Your next bill of $45.00 is due on May 20</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Delivery Resumed</h6>
+                                                <small>5 days ago</small>
+                                            </div>
+                                            <p class="mb-1">Your delivery has been resumed after vacation</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">New Publication Available</h6>
+                                                <small>1 week ago</small>
+                                            </div>
+                                            <p class="mb-1">Business Daily is now available for subscription</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Subscriptions Section -->
+                <div id="subscriptions" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-newspaper text-primary"></i> My Subscriptions</h4>
+                                
+                                <div class="subscription-card p-4 mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5>Current Subscription Plan</h5>
+                                        <span class="status-badge status-active">Active</span>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Plan:</strong> Custom Bundle</p>
+                                            <p><strong>Billing Cycle:</strong> Monthly</p>
+                                            <p><strong>Next Billing Date:</strong> May 20, 2023</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Monthly Cost:</strong> $45.00</p>
+                                            <p><strong>Total Publications:</strong> 3</p>
+                                            <p><strong>Delivery Days:</strong> Mon-Sun</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h5 class="mb-3">Publication Details</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Publication</th>
+                                                <th>Frequency</th>
+                                                <th>Delivery Days</th>
+                                                <th>Monthly Cost</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Daily Times</td>
+                                                <td>Daily</td>
+                                                <td>Mon-Sat</td>
+                                                <td>$25.00</td>
+                                                <td><span class="status-badge status-active">Active</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-warning">Modify</button>
+                                                    <button class="btn btn-sm btn-outline-danger">Cancel</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Sunday Herald</td>
+                                                <td>Weekly</td>
+                                                <td>Sunday</td>
+                                                <td>$10.00</td>
+                                                <td><span class="status-badge status-active">Active</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-warning">Modify</button>
+                                                    <button class="btn btn-sm btn-outline-danger">Cancel</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Sports Weekly</td>
+                                                <td>Weekly</td>
+                                                <td>Friday</td>
+                                                <td>$10.00</td>
+                                                <td><span class="status-badge status-active">Active</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-warning">Modify</button>
+                                                    <button class="btn btn-sm btn-outline-danger">Cancel</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <h5>Modify Subscription</h5>
+                                    <p class="text-muted">You can modify your subscription with one week's advance notice. Changes will take effect from the next billing cycle.</p>
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                                        <button class="btn btn-primary" data-section="publications">
+                                            <i class="fas fa-plus-circle"></i> Add Publication
+                                        </button>
+                                        <button class="btn btn-outline-danger">
+                                            <i class="fas fa-ban"></i> Cancel All Subscriptions
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-info-circle text-info"></i> Subscription Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>Billing Summary</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Base Plan</span>
+                                            <span>$25.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Additional Publications</span>
+                                            <span>$20.00</span>
+                                        </div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="fw-bold">Total Monthly</span>
+                                            <span class="fw-bold">$45.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Delivery Statistics</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>This Month</span>
+                                            <span class="badge bg-primary">28 deliveries</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>On-Time Rate</span>
+                                            <span class="badge bg-success">96%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Missed Deliveries</span>
+                                            <span class="badge bg-warning">2</span>
+                                        </div>
+                                    </div>
+                                    <div class="alert alert-warning mt-3">
+                                        <small><i class="fas fa-exclamation-triangle"></i> Subscription changes require 7 days notice. Cancellations take effect at the end of your billing cycle.</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-history text-info"></i> Subscription History</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Sports Weekly Added</h6>
+                                                <small>May 10, 2023</small>
+                                            </div>
+                                            <p class="mb-1">+$10.00/month</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Sunday Herald Added</h6>
+                                                <small>March 15, 2023</small>
+                                            </div>
+                                            <p class="mb-1">+$10.00/month</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Account Created</h6>
+                                                <small>January 5, 2022</small>
+                                            </div>
+                                            <p class="mb-1">Daily Times subscription</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing & Payments Section -->
+                <div id="billing" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-file-invoice-dollar text-success"></i> Billing & Payments</h4>
+                                
+                                <div class="bill-card p-4 mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5>Current Balance</h5>
+                                        <span class="h4 text-success">$45.00</span>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Due Date:</strong> May 20, 2023</p>
+                                            <p><strong>Billing Period:</strong> May 1-31, 2023</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Last Payment:</strong> April 15, 2023</p>
+                                            <p><strong>Payment Method:</strong> Credit Card ****4567</p>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                                            <i class="fas fa-credit-card"></i> Pay Now
+                                        </button>
+                                        <button class="btn btn-outline-primary">
+                                            <i class="fas fa-download"></i> Download Invoice
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <h5 class="mb-3">Billing History</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Billing Date</th>
+                                                <th>Period</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Payment Date</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>May 1, 2023</td>
+                                                <td>May 2023</td>
+                                                <td>$45.00</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                                <td>-</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary">View</button>
+                                                    <button class="btn btn-sm btn-outline-success">Pay</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>April 1, 2023</td>
+                                                <td>April 2023</td>
+                                                <td>$35.00</td>
+                                                <td><span class="status-badge status-active">Paid</span></td>
+                                                <td>April 15, 2023</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary">View</button>
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled>Paid</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>March 1, 2023</td>
+                                                <td>March 2023</td>
+                                                <td>$35.00</td>
+                                                <td><span class="status-badge status-active">Paid</span></td>
+                                                <td>March 12, 2023</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary">View</button>
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled>Paid</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>February 1, 2023</td>
+                                                <td>February 2023</td>
+                                                <td>$35.00</td>
+                                                <td><span class="status-badge status-active">Paid</span></td>
+                                                <td>February 10, 2023</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary">View</button>
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled>Paid</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-credit-card text-info"></i> Payment Methods</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="payment-card p-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6>Visa ****4567</h6>
+                                                <p class="mb-0 small">Expires 05/2025</p>
+                                            </div>
+                                            <span class="badge bg-success">Default</span>
+                                        </div>
+                                    </div>
+                                    <div class="payment-card p-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6>Mastercard ****8910</h6>
+                                                <p class="mb-0 small">Expires 11/2024</p>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-secondary">Set Default</button>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-outline-primary w-100 mt-3">
+                                        <i class="fas fa-plus-circle"></i> Add Payment Method
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-receipt text-info"></i> Recent Payments</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">April Payment</h6>
+                                                <small>April 15, 2023</small>
+                                            </div>
+                                            <p class="mb-1">$35.00 - Credit Card ****4567</p>
+                                            <small class="text-muted">Receipt #INV-2023-00415</small>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">March Payment</h6>
+                                                <small>March 12, 2023</small>
+                                            </div>
+                                            <p class="mb-1">$35.00 - Credit Card ****4567</p>
+                                            <small class="text-muted">Receipt #INV-2023-00312</small>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">February Payment</h6>
+                                                <small>February 10, 2023</small>
+                                            </div>
+                                            <p class="mb-1">$35.00 - Credit Card ****4567</p>
+                                            <small class="text-muted">Receipt #INV-2023-00210</small>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Settings Section -->
+                <div id="delivery" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-truck text-info"></i> Delivery Settings</h4>
+                                
+                                <div class="delivery-schedule-card p-4 mb-4">
+                                    <h5 class="mb-3">Current Delivery Schedule</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Delivery Address:</strong><br>123 Main Street, Apt 4B<br>New York, NY 10001</p>
+                                            <p><strong>Delivery Instructions:</strong><br>Leave at front door if no answer</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Delivery Days:</strong> Monday - Sunday</p>
+                                            <p><strong>Usual Delivery Time:</strong> 6:00 AM - 8:00 AM</p>
+                                            <p><strong>Current Status:</strong> <span class="status-badge status-active">Active</span></p>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fas fa-edit"></i> Update Delivery Information
+                                    </button>
+                                </div>
+                                
+                                <h5 class="mb-3">Temporary Delivery Pause</h5>
+                                <p class="text-muted">You can temporarily pause your delivery when you're away. Please provide at least one week's notice for delivery pauses.</p>
+                                
+                                <form id="pause-delivery-form">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="pause-start" class="form-label">Pause Start Date</label>
+                                                <input type="date" class="form-control" id="pause-start" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="pause-end" class="form-label">Pause End Date</label>
+                                                <input type="date" class="form-control" id="pause-end" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="pause-reason" class="form-label">Reason for Pause</label>
+                                        <select class="form-select" id="pause-reason" required>
+                                            <option value="">Select Reason</option>
+                                            <option value="vacation">Vacation</option>
+                                            <option value="business-trip">Business Trip</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="pause-notes" class="form-label">Additional Notes (Optional)</label>
+                                        <textarea class="form-control" id="pause-notes" rows="3" placeholder="Any special instructions..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-pause-circle"></i> Request Delivery Pause
+                                    </button>
+                                </form>
+                                
+                                <div class="mt-4">
+                                    <h5>Delivery History</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Status</th>
+                                                    <th>Publications</th>
+                                                    <th>Delivery Time</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>2023-05-15</td>
+                                                    <td><span class="status-badge status-active">Delivered</span></td>
+                                                    <td>Daily Times, Sports Weekly</td>
+                                                    <td>7:15 AM</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2023-05-14</td>
+                                                    <td><span class="status-badge status-active">Delivered</span></td>
+                                                    <td>Sunday Herald</td>
+                                                    <td>7:30 AM</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2023-05-13</td>
+                                                    <td><span class="status-badge status-active">Delivered</span></td>
+                                                    <td>Daily Times</td>
+                                                    <td>7:05 AM</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2023-05-12</td>
+                                                    <td><span class="status-badge status-paused">Missed</span></td>
+                                                    <td>Daily Times, Sports Weekly</td>
+                                                    <td>-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2023-05-11</td>
+                                                    <td><span class="status-badge status-active">Delivered</span></td>
+                                                    <td>Daily Times</td>
+                                                    <td>6:55 AM</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-info-circle text-info"></i> Delivery Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>Current Delivery Status</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Status</span>
+                                            <span class="badge bg-success">Active</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Next Delivery</span>
+                                            <span>Tomorrow, 6-8 AM</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Delivery Person</span>
+                                            <span>John Smith</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Scheduled Pauses</h6>
+                                        <div class="alert alert-info">
+                                            <small><i class="fas fa-info-circle"></i> No upcoming delivery pauses scheduled.</small>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Delivery Statistics</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>This Month</span>
+                                            <span class="badge bg-primary">28/31</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>On-Time Rate</span>
+                                            <span class="badge bg-success">96%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Missed Deliveries</span>
+                                            <span class="badge bg-warning">2</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle text-warning"></i> Report Delivery Issue</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="small">If you're experiencing issues with your delivery, please let us know.</p>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-warning">
+                                            <i class="fas fa-times-circle"></i> Missed Delivery
+                                        </button>
+                                        <button class="btn btn-outline-danger">
+                                            <i class="fas fa-tint"></i> Wet/Damaged Paper
+                                        </button>
+                                        <button class="btn btn-outline-info">
+                                            <i class="fas fa-clock"></i> Late Delivery
+                                        </button>
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="fas fa-edit"></i> Other Issue
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Browse Publications Section -->
+                <div id="publications" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-section">
+                                <h4><i class="fas fa-book-open text-warning"></i> Browse Publications</h4>
+                                <p class="text-muted">Add new publications to your subscription. Changes will take effect from your next billing cycle.</p>
+                                
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Search publications...">
+                                            <button class="btn btn-outline-secondary" type="button">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <select class="form-select" id="publication-category">
+                                            <option value="">All Categories</option>
+                                            <option value="news">News</option>
+                                            <option value="sports">Sports</option>
+                                            <option value="business">Business</option>
+                                            <option value="entertainment">Entertainment</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="publication-item">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h5>Business Daily</h5>
+                                                <span class="badge bg-success">New</span>
+                                            </div>
+                                            <p class="text-muted small">Comprehensive business news and market analysis</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-bold">$15.00/month</span>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="business-daily">
+                                                    <label class="form-check-label" for="business-daily">Subscribe</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="publication-item">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h5>Entertainment Weekly</h5>
+                                                <span class="badge bg-secondary">Popular</span>
+                                            </div>
+                                            <p class="text-muted small">The latest in movies, TV, music and celebrity news</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-bold">$12.00/month</span>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="entertainment-weekly">
+                                                    <label class="form-check-label" for="entertainment-weekly">Subscribe</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="publication-item">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h5>Technology Review</h5>
+                                            <span class="badge bg-info">Trending</span>
+                                            </div>
+                                            <p class="text-muted small">In-depth coverage of technology innovations and trends</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-bold">$10.00/month</span>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="technology-review">
+                                                    <label class="form-check-label" for="technology-review">Subscribe</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-3">
+                                    <div class="col-md-4">
+                                        <div class="publication-item">
+                                            <h5 class="mb-2">Health & Wellness</h5>
+                                            <p class="text-muted small">Your guide to healthy living and wellness tips</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-bold">$8.00/month</span>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="health-wellness">
+                                                    <label class="form-check-label" for="health-wellness">Subscribe</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="publication-item">
+                                            <h5 class="mb-2">Local Gazette</h5>
+                                            <p class="text-muted small">Community news and local events coverage</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-bold">$5.00/month</span>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="local-gazette">
+                                                    <label class="form-check-label" for="local-gazette">Subscribe</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="publication-item">
+                                            <h5 class="mb-2">Financial Times Weekly</h5>
+                                            <p class="text-muted small">Global financial news and investment insights</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-bold">$18.00/month</span>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="financial-times">
+                                                    <label class="form-check-label" for="financial-times">Subscribe</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                    <button class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                    <button class="btn btn-primary" id="update-subscriptions-btn">
+                                        <i class="fas fa-save"></i> Update Subscriptions
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Support Section -->
+                <div id="support" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-headset text-danger"></i> Customer Support</h4>
+                                <p class="text-muted">We're here to help with any questions or issues you may have.</p>
+                                
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="card dashboard-card h-100">
+                                            <div class="card-body text-center">
+                                                <div class="card-icon">
+                                                    <i class="fas fa-phone"></i>
+                                                </div>
+                                                <h5>Call Us</h5>
+                                                <p>Speak directly with a customer service representative</p>
+                                                <h4 class="text-primary">1-800-NEWS-HELP</h4>
+                                                <p class="small text-muted">Mon-Fri: 8AM-8PM, Sat: 9AM-5PM</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card dashboard-card h-100">
+                                            <div class="card-body text-center">
+                                                <div class="card-icon">
+                                                    <i class="fas fa-envelope"></i>
+                                                </div>
+                                                <h5>Email Us</h5>
+                                                <p>Send us an email and we'll respond within 24 hours</p>
+                                                <h4 class="text-primary">support@newsdirect.com</h4>
+                                                <p class="small text-muted">We typically respond within 4 hours</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h5 class="mb-3">Frequently Asked Questions</h5>
+                                <div class="accordion" id="faqAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="faq1">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                                                How do I change my subscription?
+                                            </button>
+                                        </h2>
+                                        <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+                                            <div class="accordion-body">
+                                                You can modify your subscription at any time through the "My Subscriptions" section. Changes require one week's notice and will take effect from your next billing cycle.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="faq2">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                                                What should I do if I miss a delivery?
+                                            </button>
+                                        </h2>
+                                        <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+                                            <div class="accordion-body">
+                                                If you miss a delivery, please report it through the "Delivery Settings" section. We'll arrange for a replacement delivery or credit your account accordingly.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="faq3">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                                                Can I temporarily pause my delivery?
+                                            </button>
+                                        </h2>
+                                        <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+                                            <div class="accordion-body">
+                                                Yes, you can pause your delivery for vacations or other reasons. Please provide at least one week's notice through the "Delivery Settings" section.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <h5>Send us a Message</h5>
+                                    <form id="support-form">
+                                        <div class="mb-3">
+                                            <label for="support-subject" class="form-label">Subject</label>
+                                            <input type="text" class="form-control" id="support-subject" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="support-message" class="form-label">Message</label>
+                                            <textarea class="form-control" id="support-message" rows="5" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Send Message</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-history text-info"></i> Support History</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Delivery Issue</h6>
+                                                <small>May 12, 2023</small>
+                                            </div>
+                                            <p class="mb-1">Reported missed delivery</p>
+                                            <small class="text-muted">Status: Resolved</small>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Billing Question</h6>
+                                                <small>April 5, 2023</small>
+                                            </div>
+                                            <p class="mb-1">Asked about billing cycle</p>
+                                            <small class="text-muted">Status: Resolved</small>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Subscription Change</h6>
+                                                <small>March 15, 2023</small>
+                                            </div>
+                                            <p class="mb-1">Requested to add Sunday Herald</p>
+                                            <small class="text-muted">Status: Completed</small>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-download text-success"></i> Resources</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary">
+                                            <i class="fas fa-file-pdf"></i> User Guide
+                                        </button>
+                                        <button class="btn btn-outline-success">
+                                            <i class="fas fa-file-contract"></i> Terms of Service
+                                        </button>
+                                        <button class="btn btn-outline-info">
+                                            <i class="fas fa-shield-alt"></i> Privacy Policy
+                                        </button>
+                                        <button class="btn btn-outline-warning">
+                                            <i class="fas fa-question-circle"></i> FAQ Document
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="paymentModalLabel">Make a Payment</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="payment-form">
+                        <div class="mb-3">
+                            <label for="payment-amount" class="form-label">Amount to Pay</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="payment-amount" value="45.00" readonly>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="payment-method" class="form-label">Payment Method</label>
+                            <select class="form-select" id="payment-method" required>
+                                <option value="">Select Payment Method</option>
+                                <option value="card-4567" selected>Visa ****4567</option>
+                                <option value="card-8910">Mastercard ****8910</option>
+                                <option value="new-card">Add New Card</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="payment-date" class="form-label">Payment Date</label>
+                            <input type="date" class="form-control" id="payment-date" required>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="save-payment-method">
+                            <label class="form-check-label" for="save-payment-method">
+                                Save this payment method for future use
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="confirm-payment">Make Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="successModalLabel">Success</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="successMessage">Operation completed successfully!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to logout?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="confirm-logout" onclick="window.location.href='home.html'" >Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date for forms
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('payment-date').value = today;
+            
+            // Set pause start date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('pause-start').value = tomorrow.toISOString().split('T')[0];
+            
+            // Set pause end date to 7 days from tomorrow
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 8);
+            document.getElementById('pause-end').value = nextWeek.toISOString().split('T')[0];
+            
+            // Toggle sidebar
+            const toggleSidebar = document.querySelector('.toggle-sidebar');
+            const sidebar = document.querySelector('.sidebar');
+            
+            toggleSidebar.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+            });
+            
+            // Navigation between sections
+            const navLinks = document.querySelectorAll('.sidebar .nav-link, .action-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+            const sectionTitle = document.getElementById('section-title');
+            
+            const sectionTitles = {
+                'dashboard': 'Customer Dashboard',
+                'subscriptions': 'My Subscriptions',
+                'billing': 'Billing & Payments',
+                'delivery': 'Delivery Settings',
+                'publications': 'Browse Publications',
+                'support': 'Customer Support'
+            };
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(navLink => {
+                        navLink.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Hide all content sections
+                    contentSections.forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show the selected section
+                    const targetSection = this.getAttribute('data-section');
+                    document.getElementById(targetSection).style.display = 'block';
+                    
+                    // Update section title
+                    if (sectionTitles[targetSection]) {
+                        sectionTitle.textContent = sectionTitles[targetSection];
+                    }
+                });
+            });
+            
+            // Pause delivery form
+            const pauseDeliveryForm = document.getElementById('pause-delivery-form');
+            if (pauseDeliveryForm) {
+                pauseDeliveryForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    document.getElementById('successMessage').textContent = 'Delivery pause requested successfully! Your delivery will be paused from ' + 
+                        document.getElementById('pause-start').value + ' to ' + document.getElementById('pause-end').value + '.';
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                });
+            }
+            
+            // Update subscriptions
+            const updateSubscriptionsBtn = document.getElementById('update-subscriptions-btn');
+            updateSubscriptionsBtn.addEventListener('click', function() {
+                document.getElementById('successMessage').textContent = 'Subscription changes requested successfully! Changes will take effect from your next billing cycle.';
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+            });
+            
+            // Support form
+            const supportForm = document.getElementById('support-form');
+            if (supportForm) {
+                supportForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    document.getElementById('successMessage').textContent = 'Your message has been sent to our support team. We will respond within 24 hours.';
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                    this.reset();
+                });
+            }
+            
+            // Payment confirmation
+            const confirmPayment = document.getElementById('confirm-payment');
+            confirmPayment.addEventListener('click', function() {
+                document.getElementById('successMessage').textContent = 'Payment processed successfully! A receipt has been sent to your email.';
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+                
+                // Close payment modal
+                const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+                paymentModal.hide();
+            });
+            
+            // Logout functionality
+            const logoutBtn = document.getElementById('logout-btn');
+            const confirmLogout = document.getElementById('confirm-logout');
+            
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+                logoutModal.show();
+            });
+            
+            confirmLogout.addEventListener('click', function() {
+                // In a real application, you would redirect to logout URL
+                alert('You have been logged out successfully!');
+                const logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
+                logoutModal.hide();
+            });
+        });
+    </script>
+</body>
+</html>

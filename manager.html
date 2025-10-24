@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newspaper Manager Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .sidebar {
+            background-color: var(--primary-color);
+            color: white;
+            min-height: 100vh;
+            padding: 0;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.collapsed {
+            width: 70px;
+            min-width: 70px;
+        }
+        
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+        
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+        
+        .sidebar .nav-link {
+            color: var(--light-color);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .dashboard-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .header {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+        }
+        
+        .stats-card .card-icon {
+            color: white;
+        }
+        
+        .action-btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-completed {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-overdue {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notification-icon {
+            position: relative;
+        }
+        
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        .form-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .customer-card {
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .btn-close-white {
+            filter: invert(1);
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .logout-btn {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .plan-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .plan-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .plan-card.featured {
+            border: 2px solid var(--secondary-color);
+            transform: scale(1.02);
+        }
+        
+        .commission-card {
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .overdue-card {
+            border-left: 4px solid var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="position-sticky pt-3">
+                    <div class="text-center p-3 border-bottom">
+                        <h4><i class="fas fa-newspaper"></i> <span class="logo-text">NewsSystem</span></h4>
+                        <p class="text-muted logo-text">Manager Dashboard</p>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-section="dashboard">
+                                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="subscriptions">
+                                <i class="fas fa-tasks"></i> <span>Assign Subscriptions</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="deliveries">
+                                <i class="fas fa-truck"></i> <span>Assign Deliveries</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="plans">
+                                <i class="fas fa-money-bill-wave"></i> <span>Update Plans & Pricing</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link notification-icon" href="#" data-section="commissions">
+                                <i class="fas fa-hand-holding-usd"></i> <span>Review Commissions</span>
+                                <span class="notification-badge">3</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="reports">
+                                <i class="fas fa-chart-bar"></i> <span>Generate Reports</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link notification-icon" href="#" data-section="notifications">
+                                <i class="fas fa-bell"></i> <span>Send Notifications</span>
+                                <span class="notification-badge">5</span>
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link logout-btn" href="#" id="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ml-sm-auto px-4 main-content">
+                <!-- Header -->
+                <div class="header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <button class="toggle-sidebar">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <h2 class="mb-0 d-inline-block ms-2" id="section-title">Manager Dashboard</h2>
+                            <p class="text-muted mb-0 ms-2 d-inline-block">Welcome back! Here's your overview.</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="user-info justify-content-end">
+                                <div class="user-avatar">MJ</div>
+                                <div>
+                                    <div>Michael Johnson</div>
+                                    <small class="text-muted">Manager</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="content-section">
+                    <!-- Stats Cards -->
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <h3>2,548</h3>
+                                    <p class="card-text">Total Subscribers</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <h3>$28,750</h3>
+                                    <p class="card-text">Monthly Revenue</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-truck"></i>
+                                    </div>
+                                    <h3>24</h3>
+                                    <p class="card-text">Delivery Staff</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                    </div>
+                                    <h3>42</h3>
+                                    <p class="card-text">Overdue Accounts</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-bolt text-warning"></i> Quick Actions</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <button class="btn btn-primary action-btn" data-section="subscriptions">
+                                                <i class="fas fa-tasks"></i> Assign Subscriptions
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-info action-btn" data-section="deliveries">
+                                                <i class="fas fa-truck"></i> Assign Deliveries
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-success action-btn" data-section="plans">
+                                                <i class="fas fa-money-bill-wave"></i> Update Plans
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-warning action-btn" data-section="commissions">
+                                                <i class="fas fa-hand-holding-usd"></i> Review Commissions
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-secondary action-btn" data-section="reports">
+                                                <i class="fas fa-chart-bar"></i> Generate Reports
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-danger action-btn" data-section="notifications">
+                                                <i class="fas fa-bell"></i> Send Notifications
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activities & Pending Tasks -->
+                    <div class="row mt-4">
+                        <div class="col-md-8">
+                            <div class="table-container">
+                                <h5><i class="fas fa-history text-primary"></i> Recent Activities</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Activity</th>
+                                                <th>User</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>2023-05-15</td>
+                                                <td>Monthly subscription plan updated</td>
+                                                <td>You</td>
+                                                <td><span class="status-badge status-completed">Completed</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-05-14</td>
+                                                <td>New delivery routes assigned</td>
+                                                <td>You</td>
+                                                <td><span class="status-badge status-completed">Completed</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-05-14</td>
+                                                <td>Commission approval pending</td>
+                                                <td>Delivery Team</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-05-13</td>
+                                                <td>Overdue notifications sent</td>
+                                                <td>System</td>
+                                                <td><span class="status-badge status-completed">Completed</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-05-12</td>
+                                                <td>New subscriber onboarding</td>
+                                                <td>Clerk</td>
+                                                <td><span class="status-badge status-completed">Completed</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pending Tasks -->
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-tasks text-info"></i> Pending Approvals</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Commission approvals
+                                            <span class="badge bg-warning rounded-pill">3</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            New subscription requests
+                                            <span class="badge bg-primary rounded-pill">7</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Delivery route changes
+                                            <span class="badge bg-info rounded-pill">2</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Pricing update requests
+                                            <span class="badge bg-success rounded-pill">1</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- Performance Overview -->
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-chart-line text-success"></i> Performance Overview</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>Subscription Growth</h6>
+                                        <div class="progress mb-2">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 75%">75%</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Revenue Target</h6>
+                                        <div class="progress mb-2">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 82%">82%</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Delivery Efficiency</h6>
+                                        <div class="progress mb-2">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 90%">90%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assign Subscriptions Section -->
+                <div id="subscriptions" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-tasks text-primary"></i> Assign Subscriptions</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Customer</th>
+                                                <th>Requested Plan</th>
+                                                <th>Request Date</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Robert Johnson</td>
+                                                <td>Daily + Weekend</td>
+                                                <td>2023-05-15</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success assign-sub-btn">Assign</button>
+                                                    <button class="btn btn-sm btn-outline-secondary">View Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Sarah Williams</td>
+                                                <td>Sunday Only</td>
+                                                <td>2023-05-14</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success assign-sub-btn">Assign</button>
+                                                    <button class="btn btn-sm btn-outline-secondary">View Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Michael Brown</td>
+                                                <td>Daily Newspaper</td>
+                                                <td>2023-05-13</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success assign-sub-btn">Assign</button>
+                                                    <button class="btn btn-sm btn-outline-secondary">View Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Emily Davis</td>
+                                                <td>Weekend Edition</td>
+                                                <td>2023-05-12</td>
+                                                <td><span class="status-badge status-completed">Assigned</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled>Assigned</button>
+                                                    <button class="btn btn-sm btn-outline-secondary">View Details</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-info-circle text-info"></i> Subscription Statistics</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>By Plan Type</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Daily Only</span>
+                                            <span class="badge bg-primary">1,254</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Weekend Only</span>
+                                            <span class="badge bg-success">542</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Daily + Weekend</span>
+                                            <span class="badge bg-info">752</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>By Status</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Active</span>
+                                            <span class="badge bg-success">2,458</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Pending</span>
+                                            <span class="badge bg-warning">42</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Suspended</span>
+                                            <span class="badge bg-danger">48</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assign Deliveries Section -->
+                <div id="deliveries" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-truck text-info"></i> Assign Deliveries</h4>
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="delivery-person" class="form-label">Delivery Person</label>
+                                            <select class="form-select" id="delivery-person">
+                                                <option value="">Select Delivery Person</option>
+                                                <option value="1">John Smith (Zone A)</option>
+                                                <option value="2">Maria Garcia (Zone B)</option>
+                                                <option value="3">David Wilson (Zone C)</option>
+                                                <option value="4">Lisa Brown (Zone D)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="delivery-date" class="form-label">Delivery Date</label>
+                                            <input type="date" class="form-control" id="delivery-date">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="select-all-deliveries">
+                                                    </div>
+                                                </th>
+                                                <th>Customer</th>
+                                                <th>Address</th>
+                                                <th>Zone</th>
+                                                <th>Subscription</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input delivery-checkbox" type="checkbox">
+                                                    </div>
+                                                </td>
+                                                <td>Robert Johnson</td>
+                                                <td>123 Main St</td>
+                                                <td>Zone A</td>
+                                                <td>Daily + Weekend</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input delivery-checkbox" type="checkbox">
+                                                    </div>
+                                                </td>
+                                                <td>Sarah Williams</td>
+                                                <td>456 Oak Ave</td>
+                                                <td>Zone B</td>
+                                                <td>Sunday Only</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input delivery-checkbox" type="checkbox">
+                                                    </div>
+                                                </td>
+                                                <td>Michael Brown</td>
+                                                <td>789 Pine Rd</td>
+                                                <td>Zone C</td>
+                                                <td>Daily Newspaper</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input delivery-checkbox" type="checkbox">
+                                                    </div>
+                                                </td>
+                                                <td>Emily Davis</td>
+                                                <td>321 Elm St</td>
+                                                <td>Zone D</td>
+                                                <td>Weekend Edition</td>
+                                                <td><span class="status-badge status-completed">Assigned</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <button class="btn btn-primary mt-3" id="assign-deliveries-btn">Assign Selected Deliveries</button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-users text-info"></i> Delivery Staff</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">John Smith</h6>
+                                                <small class="text-muted">Zone A</small>
+                                            </div>
+                                            <p class="mb-1">Active Deliveries: 124</p>
+                                            <small>Performance: 95%</small>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Maria Garcia</h6>
+                                                <small class="text-muted">Zone B</small>
+                                            </div>
+                                            <p class="mb-1">Active Deliveries: 98</p>
+                                            <small>Performance: 92%</small>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">David Wilson</h6>
+                                                <small class="text-muted">Zone C</small>
+                                            </div>
+                                            <p class="mb-1">Active Deliveries: 135</p>
+                                            <small>Performance: 97%</small>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Lisa Brown</h6>
+                                                <small class="text-muted">Zone D</small>
+                                            </div>
+                                            <p class="mb-1">Active Deliveries: 112</p>
+                                            <small>Performance: 94%</small>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update Plans & Pricing Section -->
+                <div id="plans" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-money-bill-wave text-success"></i> Update Plans & Pricing</h4>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="plan-card">
+                                            <h5>Daily Only</h5>
+                                            <p class="text-muted">Monday to Saturday delivery</p>
+                                            <h3>$35.00 <small class="text-muted">/month</small></h3>
+                                            <button class="btn btn-outline-primary w-100 edit-plan-btn" data-plan="daily">Edit Plan</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="plan-card featured">
+                                            <h5>Weekend Only</h5>
+                                            <p class="text-muted">Saturday and Sunday delivery</p>
+                                            <h3>$20.00 <small class="text-muted">/month</small></h3>
+                                            <button class="btn btn-outline-primary w-100 edit-plan-btn" data-plan="weekend">Edit Plan</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="plan-card">
+                                            <h5>Daily + Weekend</h5>
+                                            <p class="text-muted">7 days a week delivery</p>
+                                            <h3>$45.00 <small class="text-muted">/month</small></h3>
+                                            <button class="btn btn-outline-primary w-100 edit-plan-btn" data-plan="daily-weekend">Edit Plan</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <h5>Create New Plan</h5>
+                                    <form id="new-plan-form">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="plan-name" class="form-label">Plan Name</label>
+                                                    <input type="text" class="form-control" id="plan-name" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="plan-price" class="form-label">Monthly Price ($)</label>
+                                                    <input type="number" class="form-control" id="plan-price" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="plan-description" class="form-label">Plan Description</label>
+                                            <textarea class="form-control" id="plan-description" rows="3" required></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="delivery-days" class="form-label">Delivery Days</label>
+                                            <div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="monday" value="monday">
+                                                    <label class="form-check-label" for="monday">Mon</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="tuesday" value="tuesday">
+                                                    <label class="form-check-label" for="tuesday">Tue</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="wednesday" value="wednesday">
+                                                    <label class="form-check-label" for="wednesday">Wed</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="thursday" value="thursday">
+                                                    <label class="form-check-label" for="thursday">Thu</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="friday" value="friday">
+                                                    <label class="form-check-label" for="friday">Fri</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="saturday" value="saturday">
+                                                    <label class="form-check-label" for="saturday">Sat</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="sunday" value="sunday">
+                                                    <label class="form-check-label" for="sunday">Sun</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-success">Create New Plan</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-chart-pie text-info"></i> Plan Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>Current Subscribers by Plan</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Daily Only</span>
+                                            <span class="badge bg-primary">49%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Weekend Only</span>
+                                            <span class="badge bg-success">21%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Daily + Weekend</span>
+                                            <span class="badge bg-info">30%</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Revenue by Plan</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Daily Only</span>
+                                            <span class="badge bg-primary">$12,250</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Weekend Only</span>
+                                            <span class="badge bg-success">$4,200</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Daily + Weekend</span>
+                                            <span class="badge bg-info">$12,300</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-history text-info"></i> Recent Price Changes</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Daily Only Plan</h6>
+                                                <small>2 days ago</small>
+                                            </div>
+                                            <p class="mb-1">$32.00 → $35.00</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Weekend Only Plan</h6>
+                                                <small>1 week ago</small>
+                                            </div>
+                                            <p class="mb-1">$18.00 → $20.00</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Daily + Weekend Plan</h6>
+                                                <small>2 weeks ago</small>
+                                            </div>
+                                            <p class="mb-1">$42.00 → $45.00</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Commissions Section -->
+                <div id="commissions" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-hand-holding-usd text-warning"></i> Review Delivery Person Commissions</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Delivery Person</th>
+                                                <th>Period</th>
+                                                <th>Deliveries Completed</th>
+                                                <th>Commission Amount</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>John Smith</td>
+                                                <td>May 1-15, 2023</td>
+                                                <td>245</td>
+                                                <td>$367.50</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success approve-commission-btn">Approve</button>
+                                                    <button class="btn btn-sm btn-outline-secondary">View Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Maria Garcia</td>
+                                                <td>May 1-15, 2023</td>
+                                                <td>198</td>
+                                                <td>$297.00</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success approve-commission-btn">Approve</button>
+                                                    <button class="btn btn-sm btn-outline-secondary">View Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>David Wilson</td>
+                                                <td>May 1-15, 2023</td>
+                                                <td>267</td>
+                                                <td>$400.50</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success approve-commission-btn">Approve</button>
+                                                    <button class="btn btn-sm btn-outline-secondary">View Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Lisa Brown</td>
+                                                <td>April 16-30, 2023</td>
+                                                <td>224</td>
+                                                <td>$336.00</td>
+                                                <td><span class="status-badge status-approved">Approved</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled>Approved</button>
+                                                    <button class="btn btn-sm btn-outline-secondary">View Details</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-calculator text-info"></i> Commission Summary</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>Current Period (May 1-15)</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Total Deliveries</span>
+                                            <span class="badge bg-primary">710</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Total Commission</span>
+                                            <span class="badge bg-success">$1,065.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Pending Approval</span>
+                                            <span class="badge bg-warning">$1,065.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Commission Rate</h6>
+                                        <p>$1.50 per delivery</p>
+                                        <button class="btn btn-sm btn-outline-primary">Update Rate</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-trophy text-warning"></i> Top Performers</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">David Wilson</h6>
+                                                <small class="text-muted">267 deliveries</small>
+                                            </div>
+                                            <p class="mb-1">Commission: $400.50</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">John Smith</h6>
+                                                <small class="text-muted">245 deliveries</small>
+                                            </div>
+                                            <p class="mb-1">Commission: $367.50</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Lisa Brown</h6>
+                                                <small class="text-muted">224 deliveries</small>
+                                            </div>
+                                            <p class="mb-1">Commission: $336.00</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generate Reports Section -->
+                <div id="reports" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-chart-bar text-secondary"></i> Generate Reports</h4>
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="card dashboard-card">
+                                            <div class="card-body">
+                                                <h5>Financial Reports</h5>
+                                                <div class="d-grid gap-2">
+                                                    <button class="btn btn-outline-primary report-btn" data-report="revenue">Revenue Report</button>
+                                                    <button class="btn btn-outline-primary report-btn" data-report="payments">Payment Collection</button>
+                                                    <button class="btn btn-outline-primary report-btn" data-report="commissions">Commission Summary</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card dashboard-card">
+                                            <div class="card-body">
+                                                <h5>Operational Reports</h5>
+                                                <div class="d-grid gap-2">
+                                                    <button class="btn btn-outline-success report-btn" data-report="subscriptions">Subscription Analytics</button>
+                                                    <button class="btn btn-outline-success report-btn" data-report="delivery">Delivery Performance</button>
+                                                    <button class="btn btn-outline-success report-btn" data-report="customer">Customer Retention</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card dashboard-card">
+                                    <div class="card-header bg-white">
+                                        <h5 class="mb-0">Report Preview</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="report-preview">
+                                            <p class="text-muted text-center">Select a report to generate preview</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-cogs text-info"></i> Report Options</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="report-period" class="form-label">Report Period</label>
+                                        <select class="form-select" id="report-period">
+                                            <option value="current-month">Current Month</option>
+                                            <option value="last-month">Last Month</option>
+                                            <option value="last-quarter">Last Quarter</option>
+                                            <option value="last-year">Last Year</option>
+                                            <option value="custom">Custom Range</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3" id="custom-range" style="display: none;">
+                                        <label for="start-date" class="form-label">Start Date</label>
+                                        <input type="date" class="form-control mb-2" id="start-date">
+                                        <label for="end-date" class="form-label">End Date</label>
+                                        <input type="date" class="form-control" id="end-date">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="report-format" class="form-label">Format</label>
+                                        <select class="form-select" id="report-format">
+                                            <option value="pdf">PDF</option>
+                                            <option value="excel">Excel</option>
+                                            <option value="csv">CSV</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-success w-100" id="generate-report-btn">Generate Report</button>
+                                </div>
+                            </div>
+                            
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-history text-info"></i> Recent Reports</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">April Revenue Report</h6>
+                                                <small>2 days ago</small>
+                                            </div>
+                                            <p class="mb-1">PDF Format</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Q1 Subscription Analytics</h6>
+                                                <small>1 week ago</small>
+                                            </div>
+                                            <p class="mb-1">Excel Format</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Delivery Performance</h6>
+                                                <small>2 weeks ago</small>
+                                            </div>
+                                            <p class="mb-1">PDF Format</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Send Notifications Section -->
+                <div id="notifications" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-bell text-danger"></i> Send Notifications to Overdue Customers</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="select-all-overdue">
+                                                    </div>
+                                                </th>
+                                                <th>Customer</th>
+                                                <th>Overdue Amount</th>
+                                                <th>Days Overdue</th>
+                                                <th>Last Notification</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input overdue-checkbox" type="checkbox">
+                                                    </div>
+                                                </td>
+                                                <td>Robert Johnson</td>
+                                                <td>$45.00</td>
+                                                <td>15</td>
+                                                <td>2023-05-10</td>
+                                                <td><span class="status-badge status-overdue">Overdue</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input overdue-checkbox" type="checkbox">
+                                                    </div>
+                                                </td>
+                                                <td>Sarah Williams</td>
+                                                <td>$30.00</td>
+                                                <td>22</td>
+                                                <td>2023-05-05</td>
+                                                <td><span class="status-badge status-overdue">Overdue</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input overdue-checkbox" type="checkbox">
+                                                    </div>
+                                                </td>
+                                                <td>Michael Brown</td>
+                                                <td>$45.00</td>
+                                                <td>8</td>
+                                                <td>2023-05-12</td>
+                                                <td><span class="status-badge status-overdue">Overdue</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input overdue-checkbox" type="checkbox">
+                                                    </div>
+                                                </td>
+                                                <td>Emily Davis</td>
+                                                <td>$20.00</td>
+                                                <td>5</td>
+                                                <td>2023-05-14</td>
+                                                <td><span class="status-badge status-overdue">Overdue</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <h5>Notification Message</h5>
+                                    <form id="notification-form">
+                                        <div class="mb-3">
+                                            <label for="notification-subject" class="form-label">Subject</label>
+                                            <input type="text" class="form-control" id="notification-subject" value="Payment Reminder" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="notification-message" class="form-label">Message</label>
+                                            <textarea class="form-control" id="notification-message" rows="5" required>Dear customer, we would like to remind you that your payment is overdue. Please settle your outstanding balance of {amount} as soon as possible to avoid service interruption. Thank you for your prompt attention to this matter.</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="notification-method" class="form-label">Delivery Method</label>
+                                            <select class="form-select" id="notification-method">
+                                                <option value="email">Email</option>
+                                                <option value="sms">SMS</option>
+                                                <option value="both">Both Email & SMS</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-danger">Send Notifications</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-chart-pie text-info"></i> Overdue Statistics</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>By Amount</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Under $25</span>
+                                            <span class="badge bg-primary">12</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>$25 - $50</span>
+                                            <span class="badge bg-success">18</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Over $50</span>
+                                            <span class="badge bg-warning">12</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>By Duration</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>1-7 days</span>
+                                            <span class="badge bg-primary">15</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>8-30 days</span>
+                                            <span class="badge bg-warning">20</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Over 30 days</span>
+                                            <span class="badge bg-danger">7</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Total Overdue</h6>
+                                        <h4>$1,540.00</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-history text-info"></i> Recent Notifications</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Payment Reminder</h6>
+                                                <small>2 days ago</small>
+                                            </div>
+                                            <p class="mb-1">Sent to 15 customers</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Service Interruption Warning</h6>
+                                                <small>5 days ago</small>
+                                            </div>
+                                            <p class="mb-1">Sent to 8 customers</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Payment Confirmation</h6>
+                                                <small>1 week ago</small>
+                                            </div>
+                                            <p class="mb-1">Sent to 42 customers</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="successModalLabel">Success</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="successMessage">Operation completed successfully!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to logout?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="confirm-logout" onclick="window.location.href='home.html'">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date for forms
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('delivery-date').value = today;
+            
+            // Toggle sidebar
+            const toggleSidebar = document.querySelector('.toggle-sidebar');
+            const sidebar = document.querySelector('.sidebar');
+            
+            toggleSidebar.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+            });
+            
+            // Navigation between sections
+            const navLinks = document.querySelectorAll('.sidebar .nav-link, .action-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+            const sectionTitle = document.getElementById('section-title');
+            
+            const sectionTitles = {
+                'dashboard': 'Manager Dashboard',
+                'subscriptions': 'Assign Subscriptions',
+                'deliveries': 'Assign Deliveries',
+                'plans': 'Update Plans & Pricing',
+                'commissions': 'Review Commissions',
+                'reports': 'Generate Reports',
+                'notifications': 'Send Notifications'
+            };
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(navLink => {
+                        navLink.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Hide all content sections
+                    contentSections.forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show the selected section
+                    const targetSection = this.getAttribute('data-section');
+                    document.getElementById(targetSection).style.display = 'block';
+                    
+                    // Update section title
+                    if (sectionTitles[targetSection]) {
+                        sectionTitle.textContent = sectionTitles[targetSection];
+                    }
+                });
+            });
+            
+            // Assign subscriptions
+            const assignSubButtons = document.querySelectorAll('.assign-sub-btn');
+            assignSubButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    row.querySelector('.status-badge').className = 'status-badge status-completed';
+                    row.querySelector('.status-badge').textContent = 'Assigned';
+                    this.textContent = 'Assigned';
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-secondary');
+                    this.disabled = true;
+                    
+                    document.getElementById('successMessage').textContent = 'Subscription assigned successfully!';
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                });
+            });
+            
+            // Select all deliveries
+            const selectAllDeliveries = document.getElementById('select-all-deliveries');
+            const deliveryCheckboxes = document.querySelectorAll('.delivery-checkbox');
+            
+            selectAllDeliveries.addEventListener('change', function() {
+                deliveryCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+            
+            // Assign deliveries
+            const assignDeliveriesBtn = document.getElementById('assign-deliveries-btn');
+            assignDeliveriesBtn.addEventListener('click', function() {
+                const deliveryPerson = document.getElementById('delivery-person').value;
+                const deliveryDate = document.getElementById('delivery-date').value;
+                
+                if (!deliveryPerson) {
+                    alert('Please select a delivery person');
+                    return;
+                }
+                
+                let selectedCount = 0;
+                deliveryCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        const row = checkbox.closest('tr');
+                        row.querySelector('.status-badge').className = 'status-badge status-completed';
+                        row.querySelector('.status-badge').textContent = 'Assigned';
+                        selectedCount++;
+                    }
+                });
+                
+                if (selectedCount > 0) {
+                    document.getElementById('successMessage').textContent = `${selectedCount} deliveries assigned successfully!`;
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                    
+                    // Reset checkboxes
+                    selectAllDeliveries.checked = false;
+                    deliveryCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                } else {
+                    alert('Please select at least one delivery to assign');
+                }
+            });
+            
+            // Edit plan buttons
+            const editPlanButtons = document.querySelectorAll('.edit-plan-btn');
+            editPlanButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const plan = this.getAttribute('data-plan');
+                    document.getElementById('successMessage').textContent = `Edit ${plan} plan form would open here`;
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                });
+            });
+            
+            // New plan form
+            const newPlanForm = document.getElementById('new-plan-form');
+            if (newPlanForm) {
+                newPlanForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    document.getElementById('successMessage').textContent = 'New plan created successfully!';
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                    this.reset();
+                });
+            }
+            
+            // Approve commission buttons
+            const approveCommissionButtons = document.querySelectorAll('.approve-commission-btn');
+            approveCommissionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    row.querySelector('.status-badge').className = 'status-badge status-approved';
+                    row.querySelector('.status-badge').textContent = 'Approved';
+                    this.textContent = 'Approved';
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-secondary');
+                    this.disabled = true;
+                    
+                    // Update notification badge
+                    const notificationBadge = document.querySelector('.notification-badge');
+                    let currentCount = parseInt(notificationBadge.textContent);
+                    if (currentCount > 0) {
+                        notificationBadge.textContent = currentCount - 1;
+                    }
+                    
+                    document.getElementById('successMessage').textContent = 'Commission approved successfully!';
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                });
+            });
+            
+            // Report generation
+            const reportButtons = document.querySelectorAll('.report-btn');
+            const reportPreview = document.getElementById('report-preview');
+            const generateReportBtn = document.getElementById('generate-report-btn');
+            
+            const reportTemplates = {
+                'revenue': '<h5>Revenue Report</h5><p>This report shows revenue collected during the selected period.</p><div class="chart-container bg-light rounded p-3 text-center">[Revenue Chart Placeholder]</div>',
+                'payments': '<h5>Payment Collection Report</h5><p>Detailed breakdown of all payments received.</p><div class="chart-container bg-light rounded p-3 text-center">[Payment Chart Placeholder]</div>',
+                'commissions': '<h5>Commission Summary</h5><p>Summary of all commissions paid to delivery staff.</p><div class="chart-container bg-light rounded p-3 text-center">[Commission Chart Placeholder]</div>',
+                'subscriptions': '<h5>Subscription Analytics</h5><p>Analysis of subscription trends and customer behavior.</p><div class="chart-container bg-light rounded p-3 text-center">[Subscription Chart Placeholder]</div>',
+                'delivery': '<h5>Delivery Performance</h5><p>Performance metrics for delivery staff and routes.</p><div class="chart-container bg-light rounded p-3 text-center">[Delivery Chart Placeholder]</div>',
+                'customer': '<h5>Customer Retention Report</h5><p>Analysis of customer churn and retention rates.</p><div class="chart-container bg-light rounded p-3 text-center">[Retention Chart Placeholder]</div>'
+            };
+            
+            reportButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const reportType = this.getAttribute('data-report');
+                    if (reportTemplates[reportType]) {
+                        reportPreview.innerHTML = reportTemplates[reportType];
+                    }
+                });
+            });
+            
+            generateReportBtn.addEventListener('click', function() {
+                document.getElementById('successMessage').textContent = 'Report generated successfully!';
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+            });
+            
+            // Custom date range toggle
+            const reportPeriod = document.getElementById('report-period');
+            const customRange = document.getElementById('custom-range');
+            
+            reportPeriod.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customRange.style.display = 'block';
+                } else {
+                    customRange.style.display = 'none';
+                }
+            });
+            
+            // Select all overdue customers
+            const selectAllOverdue = document.getElementById('select-all-overdue');
+            const overdueCheckboxes = document.querySelectorAll('.overdue-checkbox');
+            
+            selectAllOverdue.addEventListener('change', function() {
+                overdueCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+            
+            // Send notifications
+            const notificationForm = document.getElementById('notification-form');
+            if (notificationForm) {
+                notificationForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    let selectedCount = 0;
+                    overdueCheckboxes.forEach(checkbox => {
+                        if (checkbox.checked) {
+                            selectedCount++;
+                        }
+                    });
+                    
+                    if (selectedCount > 0) {
+                        document.getElementById('successMessage').textContent = `Notifications sent to ${selectedCount} customers successfully!`;
+                        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                        successModal.show();
+                        
+                        // Update notification badge
+                        const notificationBadge = document.querySelectorAll('.notification-badge')[1];
+                        let currentCount = parseInt(notificationBadge.textContent);
+                        if (currentCount > 0) {
+                            notificationBadge.textContent = currentCount - selectedCount;
+                        }
+                        
+                        // Reset checkboxes
+                        selectAllOverdue.checked = false;
+                        overdueCheckboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                    } else {
+                        alert('Please select at least one customer to notify');
+                    }
+                });
+            }
+            
+            // Logout functionality
+            const logoutBtn = document.getElementById('logout-btn');
+            const confirmLogout = document.getElementById('confirm-logout');
+            
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+                logoutModal.show();
+            });
+            
+            confirmLogout.addEventListener('click', function() {
+                // In a real application, you would redirect to logout URL
+                alert('You have been logged out successfully!');
+                const logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
+                logoutModal.hide();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Person Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .sidebar {
+            background-color: var(--primary-color);
+            color: white;
+            min-height: 100vh;
+            padding: 0;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.collapsed {
+            width: 70px;
+            min-width: 70px;
+        }
+        
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+        
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+        
+        .sidebar .nav-link {
+            color: var(--light-color);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .dashboard-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .header {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+        }
+        
+        .stats-card .card-icon {
+            color: white;
+        }
+        
+        .action-btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-completed {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-delivered {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-missed {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notification-icon {
+            position: relative;
+        }
+        
+        .form-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .customer-card {
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .btn-close-white {
+            filter: invert(1);
+        }
+        
+        .logout-btn {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .delivery-route-card {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .commission-card {
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .delivery-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .delivery-item:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .delivery-item.completed {
+            background-color: #f8fff8;
+            border-color: #d4edda;
+        }
+        
+        .route-map {
+            height: 300px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .delivery-checkbox {
+            transform: scale(1.5);
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="position-sticky pt-3">
+                    <div class="text-center p-3 border-bottom">
+                        <h4><i class="fas fa-newspaper"></i> <span class="logo-text">NewsDelivery</span></h4>
+                        <p class="text-muted logo-text">Delivery Dashboard</p>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-section="dashboard">
+                                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="today-route">
+                                <i class="fas fa-route"></i> <span>Today's Route</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="deliveries">
+                                <i class="fas fa-truck-loading"></i> <span>My Deliveries</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="commissions">
+                                <i class="fas fa-hand-holding-usd"></i> <span>My Commissions</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="profile">
+                                <i class="fas fa-user"></i> <span>My Profile</span>
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link logout-btn" href="#" id="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 ml-sm-auto px-4 main-content">
+                <!-- Header -->
+                <div class="header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <button class="toggle-sidebar">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <h2 class="mb-0 d-inline-block ms-2" id="section-title">Delivery Dashboard</h2>
+                            <p class="text-muted mb-0 ms-2 d-inline-block" id="current-date">Today: Loading...</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="user-info justify-content-end">
+                                <div class="user-avatar">JS</div>
+                                <div>
+                                    <div>John Smith</div>
+                                    <small class="text-muted">Delivery Person - Zone A</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="content-section">
+                    <!-- Stats Cards -->
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-truck"></i>
+                                    </div>
+                                    <h3>124</h3>
+                                    <p class="card-text">Today's Deliveries</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <h3>89</h3>
+                                    <p class="card-text">Completed</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <h3>35</h3>
+                                    <p class="card-text">Pending</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stats-card">
+                                <div class="card-body text-center">
+                                    <div class="card-icon">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </div>
+                                    <h3>$245</h3>
+                                    <p class="card-text">This Month's Commission</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-bolt text-warning"></i> Quick Actions</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <button class="btn btn-primary action-btn" data-section="today-route">
+                                                <i class="fas fa-route"></i> View Today's Route
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-success action-btn" id="start-delivery-btn">
+                                                <i class="fas fa-play-circle"></i> Start Delivery
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-info action-btn" data-section="deliveries">
+                                                <i class="fas fa-clipboard-list"></i> Delivery History
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-warning action-btn" data-section="commissions">
+                                                <i class="fas fa-hand-holding-usd"></i> View Commissions
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Today's Deliveries -->
+                    <div class="row mt-4">
+                        <div class="col-md-8">
+                            <div class="table-container">
+                                <h5><i class="fas fa-list text-primary"></i> Today's Deliveries</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Customer</th>
+                                                <th>Address</th>
+                                                <th>Publications</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>Robert Johnson</td>
+                                                <td>123 Main St</td>
+                                                <td>Times, Herald, Sports Weekly</td>
+                                                <td><span class="status-badge status-completed">Delivered</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2</td>
+                                                <td>Sarah Williams</td>
+                                                <td>456 Oak Ave</td>
+                                                <td>Herald, Business Daily</td>
+                                                <td><span class="status-badge status-completed">Delivered</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>3</td>
+                                                <td>Michael Brown</td>
+                                                <td>789 Pine Rd</td>
+                                                <td>Times, Sports Weekly</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success mark-delivered-btn">Mark Delivered</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>4</td>
+                                                <td>Emily Davis</td>
+                                                <td>321 Elm St</td>
+                                                <td>Times, Herald</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success mark-delivered-btn">Mark Delivered</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>5</td>
+                                                <td>David Wilson</td>
+                                                <td>654 Maple Dr</td>
+                                                <td>Herald, Business Daily</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success mark-delivered-btn">Mark Delivered</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Delivery Progress -->
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-chart-pie text-info"></i> Delivery Progress</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>Today's Progress</h6>
+                                        <div class="progress mb-2" style="height: 25px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 72%">72%</div>
+                                        </div>
+                                        <p class="mb-0 text-center">89 of 124 deliveries completed</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Route Completion</h6>
+                                        <div class="progress mb-2" style="height: 25px;">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 65%">65%</div>
+                                        </div>
+                                        <p class="mb-0 text-center">Zone A: 18 of 28 streets completed</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Notifications -->
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-bell text-warning"></i> Notifications</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Route Change</h6>
+                                                <small>2 hours ago</small>
+                                            </div>
+                                            <p class="mb-1">3 new customers added to your route</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Delivery Paused</h6>
+                                                <small>1 day ago</small>
+                                            </div>
+                                            <p class="mb-1">Customer at 789 Pine Rd paused delivery until June 10</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Commission Update</h6>
+                                                <small>3 days ago</small>
+                                            </div>
+                                            <p class="mb-1">Last month's commission has been processed</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Route Section -->
+                <div id="today-route" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-route text-primary"></i> Today's Delivery Route</h4>
+                                
+                                <div class="route-map">
+                                    <div class="text-center">
+                                        <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Interactive Route Map</p>
+                                        <small class="text-muted">Showing optimized delivery sequence</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h5>Route Sequence</h5>
+                                    <div class="delivery-route-card p-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6>Zone A - Main Street Area</h6>
+                                                <p class="mb-0">18 stops | Estimated time: 2 hours 15 minutes</p>
+                                            </div>
+                                            <span class="badge bg-success">In Progress</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="delivery-route-card p-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6>Zone B - Oak Avenue Area</h6>
+                                                <p class="mb-0">22 stops | Estimated time: 2 hours 45 minutes</p>
+                                            </div>
+                                            <span class="badge bg-secondary">Upcoming</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="delivery-route-card p-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6>Zone C - Pine Road Area</h6>
+                                                <p class="mb-0">16 stops | Estimated time: 2 hours</p>
+                                            </div>
+                                            <span class="badge bg-secondary">Upcoming</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Stop #</th>
+                                                <th>Customer</th>
+                                                <th>Address</th>
+                                                <th>Publications</th>
+                                                <th>Special Instructions</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>Robert Johnson</td>
+                                                <td>123 Main St</td>
+                                                <td>Times, Herald, Sports Weekly</td>
+                                                <td>Leave at front door</td>
+                                                <td><span class="status-badge status-delivered">Delivered</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2</td>
+                                                <td>Sarah Williams</td>
+                                                <td>456 Oak Ave</td>
+                                                <td>Herald, Business Daily</td>
+                                                <td>Ring bell twice</td>
+                                                <td><span class="status-badge status-delivered">Delivered</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>3</td>
+                                                <td>Michael Brown</td>
+                                                <td>789 Pine Rd</td>
+                                                <td>Times, Sports Weekly</td>
+                                                <td>Delivery paused until June 10</td>
+                                                <td><span class="status-badge status-missed">Skipped</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>4</td>
+                                                <td>Emily Davis</td>
+                                                <td>321 Elm St</td>
+                                                <td>Times, Herald</td>
+                                                <td>Leave in mailbox</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>5</td>
+                                                <td>David Wilson</td>
+                                                <td>654 Maple Dr</td>
+                                                <td>Herald, Business Daily</td>
+                                                <td>Side gate</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                                    <button class="btn btn-success" id="print-route-btn">
+                                        <i class="fas fa-print"></i> Print Route Sheet
+                                    </button>
+                                    <button class="btn btn-primary" id="optimize-route-btn">
+                                        <i class="fas fa-sync-alt"></i> Re-optimize Route
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-info-circle text-info"></i> Route Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>Today's Summary</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Total Stops</span>
+                                            <span class="badge bg-primary">56</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Completed</span>
+                                            <span class="badge bg-success">32</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Pending</span>
+                                            <span class="badge bg-warning">24</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Skipped</span>
+                                            <span class="badge bg-secondary">3</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Route Statistics</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Estimated Time</span>
+                                            <span>7 hours</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Distance</span>
+                                            <span>28.5 km</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Publications</span>
+                                            <span>187 items</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Special Instructions</h6>
+                                        <ul class="small">
+                                            <li>3 customers have requested specific delivery locations</li>
+                                            <li>2 deliveries are paused this week</li>
+                                            <li>1 new customer added today</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-tools text-warning"></i> Route Tools</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary">
+                                            <i class="fas fa-map-marked-alt"></i> View on Map
+                                        </button>
+                                        <button class="btn btn-outline-success">
+                                            <i class="fas fa-directions"></i> Get Directions
+                                        </button>
+                                        <button class="btn btn-outline-info">
+                                            <i class="fas fa-edit"></i> Report Issue
+                                        </button>
+                                        <button class="btn btn-outline-warning">
+                                            <i class="fas fa-undo-alt"></i> Reset Progress
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Deliveries Section -->
+                <div id="deliveries" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-section">
+                                <h4><i class="fas fa-truck-loading text-info"></i> My Deliveries</h4>
+                                
+                                <div class="row mb-4">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="delivery-date-filter" class="form-label">Filter by Date</label>
+                                            <input type="date" class="form-control" id="delivery-date-filter">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="delivery-status-filter" class="form-label">Filter by Status</label>
+                                            <select class="form-select" id="delivery-status-filter">
+                                                <option value="all">All Statuses</option>
+                                                <option value="completed">Completed</option>
+                                                <option value="pending">Pending</option>
+                                                <option value="missed">Missed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="delivery-zone-filter" class="form-label">Filter by Zone</label>
+                                            <select class="form-select" id="delivery-zone-filter">
+                                                <option value="all">All Zones</option>
+                                                <option value="A">Zone A</option>
+                                                <option value="B">Zone B</option>
+                                                <option value="C">Zone C</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Customer</th>
+                                                <th>Address</th>
+                                                <th>Publications</th>
+                                                <th>Zone</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>2023-05-15</td>
+                                                <td>Robert Johnson</td>
+                                                <td>123 Main St</td>
+                                                <td>Times, Herald, Sports Weekly</td>
+                                                <td>A</td>
+                                                <td><span class="status-badge status-delivered">Delivered</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-05-15</td>
+                                                <td>Sarah Williams</td>
+                                                <td>456 Oak Ave</td>
+                                                <td>Herald, Business Daily</td>
+                                                <td>A</td>
+                                                <td><span class="status-badge status-delivered">Delivered</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-05-14</td>
+                                                <td>Michael Brown</td>
+                                                <td>789 Pine Rd</td>
+                                                <td>Times, Sports Weekly</td>
+                                                <td>B</td>
+                                                <td><span class="status-badge status-delivered">Delivered</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-05-14</td>
+                                                <td>Emily Davis</td>
+                                                <td>321 Elm St</td>
+                                                <td>Times, Herald</td>
+                                                <td>B</td>
+                                                <td><span class="status-badge status-missed">Missed</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-warning">Reschedule</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-05-13</td>
+                                                <td>David Wilson</td>
+                                                <td>654 Maple Dr</td>
+                                                <td>Herald, Business Daily</td>
+                                                <td>C</td>
+                                                <td><span class="status-badge status-delivered">Delivered</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <nav aria-label="Delivery history navigation">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                        </li>
+                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#">Next</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Commissions Section -->
+                <div id="commissions" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-hand-holding-usd text-warning"></i> My Commissions</h4>
+                                
+                                <div class="commission-card p-4 mb-4">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h5>Current Month (May 2023)</h5>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Total Deliveries:</span>
+                                                <span class="fw-bold">1,245</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Total Publication Value:</span>
+                                                <span class="fw-bold">$9,800.00</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Commission Rate:</span>
+                                                <span class="fw-bold">2.5%</span>
+                                            </div>
+                                            <hr>
+                                            <div class="d-flex justify-content-between">
+                                                <span class="h5">Estimated Commission:</span>
+                                                <span class="h5 text-success">$245.00</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h5>Payment Information</h5>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Payment Date:</span>
+                                                <span class="fw-bold">June 5, 2023</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Payment Method:</span>
+                                                <span class="fw-bold">Direct Deposit</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Status:</span>
+                                                <span class="badge bg-warning">Pending</span>
+                                            </div>
+                                            <hr>
+                                            <button class="btn btn-outline-primary w-100">
+                                                <i class="fas fa-file-invoice-dollar"></i> View Detailed Breakdown
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h5>Commission History</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Period</th>
+                                                <th>Deliveries</th>
+                                                <th>Publication Value</th>
+                                                <th>Commission Rate</th>
+                                                <th>Commission Amount</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>April 2023</td>
+                                                <td>1,198</td>
+                                                <td>$9,584.00</td>
+                                                <td>2.5%</td>
+                                                <td>$239.60</td>
+                                                <td><span class="status-badge status-delivered">Paid</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>March 2023</td>
+                                                <td>1,156</td>
+                                                <td>$9,248.00</td>
+                                                <td>2.5%</td>
+                                                <td>$231.20</td>
+                                                <td><span class="status-badge status-delivered">Paid</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>February 2023</td>
+                                                <td>1,087</td>
+                                                <td>$8,696.00</td>
+                                                <td>2.5%</td>
+                                                <td>$217.40</td>
+                                                <td><span class="status-badge status-delivered">Paid</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>January 2023</td>
+                                                <td>1,024</td>
+                                                <td>$8,192.00</td>
+                                                <td>2.5%</td>
+                                                <td>$204.80</td>
+                                                <td><span class="status-badge status-delivered">Paid</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-chart-line text-success"></i> Commission Trends</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>Monthly Commission</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>January</span>
+                                            <span class="fw-bold">$204.80</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>February</span>
+                                            <span class="fw-bold">$217.40</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>March</span>
+                                            <span class="fw-bold">$231.20</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>April</span>
+                                            <span class="fw-bold">$239.60</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>May (est.)</span>
+                                            <span class="fw-bold text-success">$245.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Performance Metrics</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Avg. Daily Deliveries</span>
+                                            <span class="badge bg-primary">56</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Success Rate</span>
+                                            <span class="badge bg-success">97.2%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Customer Rating</span>
+                                            <span class="badge bg-warning">4.8/5</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-file-invoice-dollar text-info"></i> Payment Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>Bank Information</h6>
+                                        <p class="small mb-1">Account: **** 4567</p>
+                                        <p class="small mb-1">Bank: City National Bank</p>
+                                        <button class="btn btn-sm btn-outline-primary mt-2">Update Information</button>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Tax Documents</h6>
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-download"></i> Q1 2023 Statement
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-download"></i> 2022 Year-End Summary
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Profile Section -->
+                <div id="profile" class="content-section" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-section">
+                                <h4><i class="fas fa-user text-primary"></i> My Profile</h4>
+                                
+                                <div class="row">
+                                    <div class="col-md-4 text-center">
+                                        <div class="mb-3">
+                                            <div class="user-avatar mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2rem;">JS</div>
+                                            <button class="btn btn-sm btn-outline-primary">Change Photo</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <form id="profile-form">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="first-name" class="form-label">First Name</label>
+                                                        <input type="text" class="form-control" id="first-name" value="John" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="last-name" class="form-label">Last Name</label>
+                                                        <input type="text" class="form-control" id="last-name" value="Smith" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="email" class="form-label">Email</label>
+                                                        <input type="email" class="form-control" id="email" value="john.smith@newsdelivery.com" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="phone" class="form-label">Phone</label>
+                                                        <input type="tel" class="form-control" id="phone" value="(555) 123-4567" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="address" class="form-label">Address</label>
+                                                <textarea class="form-control" id="address" rows="2" required>123 Delivery Lane, Cityville, State 12345</textarea>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="zone" class="form-label">Assigned Zone</label>
+                                                        <input type="text" class="form-control" id="zone" value="Zone A" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="employee-id" class="form-label">Employee ID</label>
+                                                        <input type="text" class="form-control" id="employee-id" value="DP-2023-045" disabled>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section mt-4">
+                                <h5><i class="fas fa-shield-alt text-warning"></i> Security Settings</h5>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fas fa-key"></i> Change Password
+                                    </button>
+                                    <button class="btn btn-outline-info">
+                                        <i class="fas fa-bell"></i> Notification Preferences
+                                    </button>
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fas fa-language"></i> Language Settings
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-chart-bar text-info"></i> Performance Summary</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>This Month</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Deliveries Completed</span>
+                                            <span class="badge bg-primary">1,245</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>On-Time Rate</span>
+                                            <span class="badge bg-success">96.8%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Customer Complaints</span>
+                                            <span class="badge bg-danger">2</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Overall Stats</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Total Deliveries</span>
+                                            <span class="badge bg-primary">15,678</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Months of Service</span>
+                                            <span class="badge bg-info">28</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Average Rating</span>
+                                            <span class="badge bg-warning">4.7/5</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card dashboard-card mt-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="fas fa-tools text-secondary"></i> Quick Links</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary">
+                                            <i class="fas fa-question-circle"></i> Help & Support
+                                        </button>
+                                        <button class="btn btn-outline-success">
+                                            <i class="fas fa-file-download"></i> Download Resources
+                                        </button>
+                                        <button class="btn btn-outline-info">
+                                            <i class="fas fa-calendar-alt"></i> Delivery Schedule
+                                        </button>
+                                        <button class="btn btn-outline-warning">
+                                            <i class="fas fa-exclamation-triangle"></i> Report an Issue
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="successModalLabel">Success</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="successMessage">Operation completed successfully!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to logout?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="confirm-logout" onclick="window.location.href='home.html'" >Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').textContent = 'Today: ' + today.toLocaleDateString('en-US', options);
+            
+            // Toggle sidebar
+            const toggleSidebar = document.querySelector('.toggle-sidebar');
+            const sidebar = document.querySelector('.sidebar');
+            
+            toggleSidebar.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+            });
+            
+            // Navigation between sections
+            const navLinks = document.querySelectorAll('.sidebar .nav-link, .action-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+            const sectionTitle = document.getElementById('section-title');
+            
+            const sectionTitles = {
+                'dashboard': 'Delivery Dashboard',
+                'today-route': "Today's Route",
+                'deliveries': 'My Deliveries',
+                'commissions': 'My Commissions',
+                'profile': 'My Profile'
+            };
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(navLink => {
+                        navLink.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Hide all content sections
+                    contentSections.forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show the selected section
+                    const targetSection = this.getAttribute('data-section');
+                    document.getElementById(targetSection).style.display = 'block';
+                    
+                    // Update section title
+                    if (sectionTitles[targetSection]) {
+                        sectionTitle.textContent = sectionTitles[targetSection];
+                    }
+                });
+            });
+            
+            // Mark deliveries as completed
+            const markDeliveredButtons = document.querySelectorAll('.mark-delivered-btn');
+            markDeliveredButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    row.querySelector('.status-badge').className = 'status-badge status-delivered';
+                    row.querySelector('.status-badge').textContent = 'Delivered';
+                    this.textContent = 'Delivered';
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-secondary');
+                    this.disabled = true;
+                    
+                    document.getElementById('successMessage').textContent = 'Delivery marked as completed!';
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                });
+            });
+            
+            // Start delivery button
+            const startDeliveryBtn = document.getElementById('start-delivery-btn');
+            startDeliveryBtn.addEventListener('click', function() {
+                document.getElementById('successMessage').textContent = 'Delivery session started! Your route has been optimized.';
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+                
+                // Navigate to today's route
+                document.querySelector('[data-section="today-route"]').click();
+            });
+            
+            // Print route button
+            const printRouteBtn = document.getElementById('print-route-btn');
+            printRouteBtn.addEventListener('click', function() {
+                document.getElementById('successMessage').textContent = 'Route sheet sent to printer!';
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+            });
+            
+            // Optimize route button
+            const optimizeRouteBtn = document.getElementById('optimize-route-btn');
+            optimizeRouteBtn.addEventListener('click', function() {
+                document.getElementById('successMessage').textContent = 'Route re-optimized for maximum efficiency!';
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+            });
+            
+            // Profile form submission
+            const profileForm = document.getElementById('profile-form');
+            if (profileForm) {
+                profileForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    document.getElementById('successMessage').textContent = 'Profile updated successfully!';
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                });
+            }
+            
+            // Logout functionality
+            const logoutBtn = document.getElementById('logout-btn');
+            const confirmLogout = document.getElementById('confirm-logout');
+            
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+                logoutModal.show();
+            });
+            
+            confirmLogout.addEventListener('click', function() {
+                // In a real application, you would redirect to logout URL
+                alert('You have been logged out successfully!');
+                const logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
+                logoutModal.hide();
+            });
+        });
+    </script>
+</body>
+</html>
