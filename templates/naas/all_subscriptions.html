@@ -1,0 +1,210 @@
+{% extends 'naas/base.html' %}
+
+{% block title %}All Subscriptions - NewsExpress{% endblock %}
+
+{% block extra_css %}
+<style>
+    .subscription-table th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .status-paused {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    .status-cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    .stats-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>All Subscriptions</h2>
+                    <p class="text-muted mb-0">Manage and view all customer subscriptions</p>
+                </div>
+                <div>
+                    <a href="{% url 'manager_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h4 class="text-primary">{{ total_subscriptions }}</h4>
+                            <p class="mb-0">Total Subscriptions</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h4 class="text-success">{{ active_subscriptions }}</h4>
+                            <p class="mb-0">Active</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h4 class="text-warning">{{ paused_subscriptions }}</h4>
+                            <p class="mb-0">Paused</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h4 class="text-danger">{{ cancelled_subscriptions }}</h4>
+                            <p class="mb-0">Cancelled</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ search_query }}" placeholder="Search by customer name, publication, or address...">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="status" class="form-label">Filter by Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Statuses</option>
+                                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                                <option value="paused" {% if status_filter == 'paused' %}selected{% endif %}>Paused</option>
+                                <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Subscriptions Table -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Subscription List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover subscription-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Publication</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Monthly Price</th>
+                                    <th>Delivery Address</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subscription in subscriptions %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ subscription.customer.user.get_full_name|default:subscription.customer.user.username }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ subscription.customer.user.email }}</small>
+                                    </td>
+                                    <td>{{ subscription.publication.title }}</td>
+                                    <td>{{ subscription.start_date }}</td>
+                                    <td>{{ subscription.end_date }}</td>
+                                    <td>${{ subscription.publication.monthly_price }}</td>
+                                    <td>
+                                        <small>{{ subscription.delivery_address|truncatewords:5 }}</small>
+                                    </td>
+                                    <td>
+                                        {% if subscription.status == 'active' %}
+                                            <span class="status-badge status-active">Active</span>
+                                        {% elif subscription.status == 'paused' %}
+                                            <span class="status-badge status-paused">Paused</span>
+                                        {% elif subscription.status == 'cancelled' %}
+                                            <span class="status-badge status-cancelled">Cancelled</span>
+                                        {% else %}
+                                            <span class="status-badge">{{ subscription.status|title }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ subscription.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No subscriptions found matching your criteria.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if subscriptions.has_other_pages %}
+                    <nav aria-label="Subscription pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if subscriptions.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ subscriptions.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">Previous</a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in subscriptions.paginator.page_range %}
+                                {% if subscriptions.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if subscriptions.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ subscriptions.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

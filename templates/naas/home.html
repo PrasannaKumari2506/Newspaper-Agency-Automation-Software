@@ -1,0 +1,246 @@
+{% extends 'naas/base.html' %}
+{% load static %}
+
+{% block title %}NewsExpress - Newspaper Delivery Agency{% endblock %}
+
+{% block content %}
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            News<span class="brand-accent">Express</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#publications">Publications</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact">Contact</a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Rest of your home.html content remains the same -->
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Your Daily News, Delivered with Care</h1>
+                <p class="lead mb-4">Access your favorite newspapers and magazines through our reliable delivery service. Fresh news at your doorstep every morning.</p>
+                <a href="#login" class="btn btn-primary btn-lg px-4 me-2">
+                    <i class="fas fa-sign-in-alt me-2"></i>Customer Login
+                </a>
+                <a href="#publications" class="btn btn-outline-light btn-lg px-4">
+                    <i class="fas fa-list me-2"></i>View Publications
+                </a>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="{{ hero_image_url }}" alt="Newspaper Delivery" class="img-fluid rounded shadow"> 
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Login Portals Section -->
+<section id="login" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Access Your Account</h2>
+            <p class="text-muted">Choose your portal to login to the system</p>
+        </div>
+        <div class="row justify-content-center">
+            <!-- Employee Portal -->
+            <div class="col-md-6 col-lg-5">
+                <div class="card portal-card h-100 border-top border-4 border-success">
+                    <div class="card-body text-center p-5">
+                        <div class="portal-icon text-success">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h4 class="card-title fw-bold">Employee Portal</h4>
+                        <p class="card-text text-muted mb-4">
+                            Single login for all staff members. Your role (Manager, Clerk, or Delivery) will determine your access level and available features.
+                        </p>
+                        <a href="{% url 'employee_login' %}" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Employee Login
+                        </a>
+                        <small class="text-muted mt-2 d-block">For Managers, Clerks & Delivery Staff</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Customer Portal -->
+            <div class="col-md-6 col-lg-5">
+                <div class="card portal-card h-100 border-top border-4 border-primary">
+                    <div class="card-body text-center p-5">
+                        <div class="portal-icon text-primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h4 class="card-title fw-bold">Customer Portal</h4>
+                        <p class="card-text text-muted mb-4">
+                            Manage your subscriptions, view bills, make payments, and update your delivery preferences in one convenient place.
+                        </p>
+                        <a href="{% url 'customer_login' %}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Customer Login
+                        </a>
+                        <small class="text-muted mt-2 d-block">For Subscribers & Customers</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Publications Section -->
+<section id="publications" class="py-5 bg-light-custom">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Featured Publications</h2>
+            <p class="text-muted">Our most popular newspapers and magazines</p>
+        </div>
+        <div class="row g-4">
+            {% for publication in publications %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card featured-card h-100 shadow-sm">
+                    <img src="{{ publication.image_url|default:'https://via.placeholder.com/300x200' }}" class="card-img-top" alt="{{ publication.name }}">
+                    <div class="card-body text-center">
+                        <h5 class="card-title fw-bold">{{ publication.name }}</h5>
+                        <p class="card-text text-muted">{{ publication.description }}</p>
+                        <span class="badge bg-success">₹{{ publication.monthly_price }}/month</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No publications available at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-5">
+            <p class="text-muted">Interested in our publications? <a href="#login" class="text-primary">Login to subscribe</a></p>
+        </div>
+    </div>
+</section>
+
+<!-- Announcements & Contact Section -->
+<section id="contact" class="py-5 bg-dark text-white">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Announcements -->
+            <div class="col-lg-6">
+                <h3 class="fw-bold mb-4 text-primary">
+                    <i class="fas fa-bullhorn me-2"></i>Service Announcements
+                </h3>
+                <div class="announcement-item border-bottom border-secondary pb-3 mb-3">
+                    <h6 class="fw-bold">Holiday Schedule Update</h6>
+                    <p class="mb-0 text-light">No deliveries on national holidays. Monthly bills will be adjusted accordingly.</p>
+                    <small class="text-muted">Posted: Dec 15, 2024</small>
+                </div>
+                <div class="announcement-item border-bottom border-secondary pb-3 mb-3">
+                    <h6 class="fw-bold">New Publication Added</h6>
+                    <p class="mb-0 text-light">"Business Chronicle" now available for subscription.</p>
+                    <small class="text-muted">Posted: Dec 10, 2024</small>
+                </div>
+                <div class="announcement-item">
+                    <h6 class="fw-bold">Delivery Time Changes</h6>
+                    <p class="mb-0 text-light">Morning delivery times updated to 6:00 AM - 8:00 AM.</p>
+                    <small class="text-muted">Posted: Dec 5, 2024</small>
+                </div>
+            </div>
+            <!-- Contact Information -->
+            <div class="col-lg-6">
+                <h3 class="fw-bold mb-4 text-primary">
+                    <i class="fas fa-address-book me-2"></i>Contact Information
+                </h3>
+                <div class="contact-info">
+                    <p class="mb-3">
+                        <i class="fas fa-map-marker-alt text-primary me-3"></i>
+                        123 News Street, Media City, MC 12345
+                    </p>
+                    <p class="mb-3">
+                        <i class="fas fa-phone text-primary me-3"></i>
+                        +91 98765 43210
+                    </p>
+                    <p class="mb-3">
+                        <i class="fas fa-envelope text-primary me-3"></i>
+                        support@newsexpress.com
+                    </p>
+                    <p class="mb-3">
+                        <i class="fas fa-clock text-primary me-3"></i>
+                        Mon-Sat: 8:00 AM - 8:00 PM
+                    </p>
+                </div>
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3">Follow Us</h6>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-white fs-5"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-white fs-5"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white fs-5"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white fs-5"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-black text-white py-4">
+    <div class="container text-center">
+        <p class="mb-0">&copy; 2024 NewsExpress - Newspaper Delivery Agency. All rights reserved.</p>
+        <p class="mb-0 text-muted">Reliable delivery since 2010</p>
+    </div>
+</footer>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #2c3e50, #3498db);
+        color: white;
+        padding: 100px 0;
+    }
+    .portal-card {
+        transition: transform 0.3s ease;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .portal-card:hover {
+        transform: translateY(-10px);
+    }
+    .portal-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    .featured-card {
+        transition: transform 0.3s ease;
+    }
+    .featured-card:hover {
+        transform: scale(1.05);
+    }
+    .bg-light-custom {
+        background-color: #f8f9fa !important;
+    }
+    .navbar-brand {
+        font-weight: bold;
+        font-size: 1.8rem;
+    }
+    .brand-accent {
+        color: #e74c3c;
+    }
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
+{% endblock %}

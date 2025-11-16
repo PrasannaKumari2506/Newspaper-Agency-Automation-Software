@@ -1,0 +1,1078 @@
+{% extends 'naas/base.html' %}
+
+{% block title %}Clerk Dashboard - NewsExpress{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .sidebar {
+        background-color: #2c3e50;
+        color: white;
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+    
+    .sidebar .nav-link {
+        color: #ecf0f1;
+        padding: 12px 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .sidebar .nav-link i {
+        margin-right: 10px;
+        width: 20px;
+    }
+    
+    .dashboard-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        border: none;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+    
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status-paused {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status-overdue {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .content-section {
+        display: none;
+    }
+    
+    .content-section.active {
+        display: block;
+    }
+    
+    .notification-badge {
+        background-color: #dc3545;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 5px;
+    }
+    
+    .pause-card {
+        border-left: 4px solid #ffc107;
+    }
+    
+    .logout-btn {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    .logout-btn:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+    
+    .action-btn {
+        margin: 2px;
+        font-size: 0.8rem;
+    }
+
+    .content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 sidebar">
+            <div class="text-center p-3 border-bottom">
+                <h4><i class="fas fa-newspaper"></i> NewsSystem</h4>
+                <p class="text-muted">Clerk Dashboard</p>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="subscriptions">
+                        <i class="fas fa-newspaper"></i> Subscriptions
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="payments">
+                        <i class="fas fa-money-bill-wave"></i> Payments
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="receipts">
+                        <i class="fas fa-receipt"></i> Receipts
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="pause">
+                        <i class="fas fa-pause-circle"></i> Pause Newspaper
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="complaints">
+                        <i class="fas fa-comment-dots"></i> Complaints
+                        <span class="notification-badge">{{ open_complaints.count }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link logout-btn" href="#" id="logoutTrigger" style="background-color: #dc3545; color: white;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 px-4 py-3">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 id="section-title">Clerk Dashboard</h2>
+                    <p class="text-muted mb-0">Welcome back! Here's what's happening today.</p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                        {{ user.first_name|first }}{{ user.last_name|first }}
+                    </div>
+                    <div>
+                        <div>{{ user.get_full_name|default:user.username }}</div>
+                        <small class="text-muted">Clerk</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section active">
+                <!-- Stats Cards -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card dashboard-card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-2x mb-3"></i>
+                                <h3>{{ total_subscribers }}</h3>
+                                <p class="card-text">Active Subscribers</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-money-bill-wave fa-2x mb-3"></i>
+                                <h3>${{ monthly_revenue|default:"0" }}</h3>
+                                <p class="card-text">Monthly Revenue</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
+                                <h3>{{ open_complaints.count }}</h3>
+                                <p class="card-text">Pending Complaints</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-pause-circle fa-2x mb-3"></i>
+                                <h3>{{ paused_subscriptions.count }}</h3>
+                                <p class="card-text">Paused Subscriptions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="card dashboard-card mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Recent Activities</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Activity</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in recent_payments %}
+                                    <tr>
+                                        <td>{{ payment.payment_date|date:"Y-m-d" }}</td>
+                                        <td>{{ payment.subscription.customer.user.get_full_name }}</td>
+                                        <td>Payment Recorded - ${{ payment.amount }}</td>
+                                        <td>
+                                            <span class="status-badge status-{{ payment.payment_status }}">
+                                                {{ payment.payment_status|title }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No recent activities</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscriptions Section -->
+            <div id="subscriptions" class="content-section">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Manage Subscriptions</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSubscriptionModal">
+                            <i class="fas fa-plus"></i> Add Subscription
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Publication</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for subscription in subscriptions %}
+                                    <tr>
+                                        <td>{{ subscription.customer.user.get_full_name }}</td>
+                                        <td>{{ subscription.publication.title }}</td>
+                                        <td>{{ subscription.start_date|date:"Y-m-d" }}</td>
+                                        <td>{{ subscription.end_date|date:"Y-m-d" }}</td>
+                                        <td>
+                                            <span class="status-badge status-{{ subscription.status }}">
+                                                {{ subscription.status|title }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if subscription.status == 'active' %}
+                                                <button class="btn btn-warning btn-sm action-btn pause-subscription" data-id="{{ subscription.subscription_id }}">
+                                                    Pause
+                                                </button>
+                                            {% elif subscription.status == 'paused' %}
+                                                <button class="btn btn-success btn-sm action-btn resume-subscription" data-id="{{ subscription.subscription_id }}">
+                                                    Resume
+                                                </button>
+                                            {% endif %}
+                                            <button class="btn btn-info btn-sm action-btn view-subscription" data-id="{{ subscription.subscription_id }}">
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No subscriptions found</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Subscription Modal -->
+            <div class="modal fade" id="addSubscriptionModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title">Add New Subscription</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="post" action="{% url 'add_subscription' %}">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Customer</label>
+                                            <select class="form-select" name="customer" required>
+                                                <option value="">Select Customer</option>
+                                                {% for customer in customers %}
+                                                <option value="{{ customer.customer_id }}">
+                                                    {{ customer.user.username }} - {{ customer.user.get_full_name|default:customer.user.email }}
+                                                </option>
+                                                {% empty %}
+                                                <option value="">No customers available</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Publication</label>
+                                            <select class="form-select" name="publication" required>
+                                                <option value="">Select Publication</option>
+                                                {% for publication in publications %}
+                                                <option value="{{ publication.publication_id }}" data-price="{{ publication.monthly_price }}">
+                                                    {{ publication.title }} - ${{ publication.monthly_price }}/month ({{ publication.get_frequency_display }})
+                                                </option>
+                                                {% empty %}
+                                                <option value="">No publications available</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Start Date</label>
+                                            <input type="date" class="form-control" name="start_date" required 
+                                                value="{{ today }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">End Date</label>
+                                            <input type="date" class="form-control" name="end_date" required 
+                                                value="{{ one_year_from_now }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Delivery Address</label>
+                                            <textarea class="form-control" name="delivery_address" rows="3" 
+                                                    placeholder="Enter complete delivery address" required></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Quantity</label>
+                                            <input type="number" class="form-control" name="quantity" value="1" min="1" required>
+                                            <small class="text-muted">Number of copies per delivery</small>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Payment Plan</label>
+                                            <select class="form-select" name="payment_plan">
+                                                <option value="monthly">Monthly</option>
+                                                <option value="quarterly">Quarterly</option>
+                                                <option value="yearly">Weekly</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Special Instructions (Optional)</label>
+                                    <textarea class="form-control" name="special_instructions" rows="2" 
+                                            placeholder="Any special delivery instructions..."></textarea>
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="create_initial_payment" id="createPayment" checked>
+                                    <label class="form-check-label" for="createPayment">
+                                        Create initial payment record
+                                    </label>
+                                </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Subscription</button>
+                        </div>
+                        </form> <!-- Close the form here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payments Section -->
+            <div id="payments" class="content-section">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Record Payment</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'record_payment' %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Subscription</label>
+                                        <select class="form-select" name="subscription" required>
+                                            <option value="">Select Subscription</option>
+                                            {% for subscription in active_subscriptions %}
+                                            <option value="{{ subscription.subscription_id }}">
+                                                {{ subscription.customer.user.get_full_name }} - {{ subscription.publication.title }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Amount</label>
+                                        <input type="number" class="form-control" name="amount" placeholder="Enter amount" step="0.01" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Payment Method</label>
+                                        <select class="form-select" name="payment_method" required>
+                                            <option value="">Select Method</option>
+                                            <option value="cash">Cash</option>
+                                            <option value="cheque">Cheque</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Due Date</label>
+                                        <input type="date" class="form-control" name="due_date" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Record Payment</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Recent Payments -->
+                <div class="card dashboard-card mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Recent Payments</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Receipt No</th>
+                                        <th>Customer</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Method</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in recent_payments %}
+                                    <tr>
+                                        <td>{{ payment.receipt_number }}</td>
+                                        <td>{{ payment.subscription.customer.user.get_full_name }}</td>
+                                        <td>${{ payment.amount }}</td>
+                                        <td>{{ payment.payment_date|date:"Y-m-d" }}</td>
+                                        <td>{{ payment.payment_method|title }}</td>
+                                        <td>
+                                            <span class="status-badge status-{{ payment.payment_status }}">
+                                                {{ payment.payment_status|title }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No payments found</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receiptss Section -->
+            
+            <div id="receipts" class="content-section">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Reports & Receipts</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Payment Receipts -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">Download Payment Receipts</h6>
+                            <p class="text-muted mb-3">Download receipts for successful payments</p>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Receipt No</th>
+                                            <th>Customer</th>
+                                            <th>Publication</th>
+                                            <th>Amount</th>
+                                            <th>Payment Date</th>
+                                            <th>Method</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payment in completed_payments %}
+                                        <tr>
+                                            <td><strong>{{ payment.receipt_number }}</strong></td>
+                                            <td>{{ payment.subscription.customer.user.get_full_name }}</td>
+                                            <td>{{ payment.subscription.publication.title }}</td>
+                                            <td>${{ payment.amount }}</td>
+                                            <td>{{ payment.payment_date|date:"Y-m-d" }}</td>
+                                            <td>{{ payment.payment_method|title }}</td>
+                                            <td>
+                                                <a href="{% url 'download_receipt' payment.payment_id %}" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-download"></i> Download Receipt
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted py-4">
+                                                <i class="fas fa-receipt fa-2x mb-2 d-block"></i>
+                                                No successful payments found
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pause Newspaper Section -->
+            <!-- Replace the entire Pause Newspaper section with this: -->
+            <div id="pause" class="content-section">
+                <!-- Pause Requests Section -->
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-clock text-warning"></i> Pending Pause Requests</h5>
+                        <span class="badge bg-warning">{{ pending_pause_requests.count }}</span>
+                    </div>
+                    <div class="card-body">
+                        {% for subscription in pending_pause_requests %}
+                        <div class="card mb-3 border-warning">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h6 class="card-title">
+                                            {{ subscription.customer.user.get_full_name }}
+                                            <small class="text-muted">- {{ subscription.publication.title }}</small>
+                                        </h6>
+                                        <div class="row small text-muted">
+                                            <div class="col-md-4">
+                                                <strong>Pause Period:</strong><br>
+                                                {{ subscription.pause_start_date|date:"M d, Y" }} to {{ subscription.pause_end_date|date:"M d, Y" }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Duration:</strong><br>
+                                                {{ subscription.pause_duration_days }} days
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Reason:</strong><br>
+                                                {{ subscription.get_pause_reason_display }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <strong>Requested:</strong><br>
+                                                {{ subscription.pause_requested_at|date:"M d" }}
+                                            </div>
+                                        </div>
+                                        {% if subscription.pause_notes %}
+                                        <div class="mt-2">
+                                            <strong>Customer Notes:</strong>
+                                            <p class="mb-0 small">{{ subscription.pause_notes }}</p>
+                                        </div>
+                                        {% endif %}
+                                        <div class="mt-2">
+                                            <strong>Original End Date:</strong>
+                                            <span class="text-muted">{{ subscription.end_date|date:"M d, Y" }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <!-- APPROVE FORM - Fixed CSRF -->
+                                        <form method="post" action="{% url 'approve_pause_request' subscription.subscription_id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="approve">
+                                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to approve this pause request?')">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+                                        </form>
+                                        
+                                        <!-- REJECT FORM - Fixed CSRF -->
+                                        <form method="post" action="{% url 'reject_pause_request' subscription.subscription_id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="reject">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to reject this pause request?')">
+                                                <i class="fas fa-times"></i> Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <p class="text-muted">No pending pause requests</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Complaints Section -->
+            <!-- Complaints Section -->
+            <div id="complaints" class="content-section">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-comment-dots"></i> Customer Complaints</h5>
+                        <span class="badge bg-warning">{{ open_complaints.count }}</span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Open Complaints -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">Open Complaints</h6>
+                            {% for complaint in open_complaints %}
+                            <div class="card mb-3 border-warning">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h6 class="card-title">{{ complaint.subject }}</h6>
+                                            <p class="card-text">{{ complaint.description }}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <strong>{{ complaint.customer.user.get_full_name }}</strong> 
+                                                    - {{ complaint.created_at|date:"M d, Y H:i" }}
+                                                </small>
+                                                <span class="badge bg-warning">Open</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <form method="post" action="{% url 'resolve_complaint' complaint.complaint_id %}" class="mt-2">
+                                                {% csrf_token %}
+                                                <div class="mb-2">
+                                                    <label class="form-label small">Resolution Notes</label>
+                                                    <textarea class="form-control form-control-sm" name="resolution_notes" rows="2" 
+                                                            placeholder="Enter resolution details..." required></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-check"></i> Mark as Resolved
+                                                </button>
+                                                <button type="button" class="btn btn-info btn-sm" 
+                                                        data-bs-toggle="modal" data-bs-target="#complaintModal{{ complaint.complaint_id }}">
+                                                    <i class="fas fa-eye"></i> Details
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Complaint Detail Modal for Clerk -->
+                            <div class="modal fade" id="complaintModal{{ complaint.complaint_id }}" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title">Complaint Details</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <strong>Customer:</strong>
+                                                    <p>{{ complaint.customer.user.get_full_name }}</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <strong>Email:</strong>
+                                                    <p>{{ complaint.customer.user.email }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Subject:</strong>
+                                                <p class="fw-bold">{{ complaint.subject }}</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Description:</strong>
+                                                <p class="p-2 bg-light rounded">{{ complaint.description }}</p>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <strong>Submitted:</strong>
+                                                    <p>{{ complaint.created_at|date:"F j, Y, g:i a" }}</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <strong>Last Updated:</strong>
+                                                    <p>{{ complaint.updated_at|date:"F j, Y, g:i a" }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <form method="post" action="{% url 'resolve_complaint' complaint.complaint_id %}" class="w-100">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <label class="form-label">Resolution Notes</label>
+                                                    <textarea class="form-control" name="resolution_notes" rows="3" 
+                                                            placeholder="Describe how this complaint was resolved..." required></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="fas fa-check"></i> Mark as Resolved
+                                                </button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                <p class="text-muted">No open complaints</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Recently Resolved Complaints -->
+                        {% if resolved_complaints %}
+                        <div class="mt-4">
+                            <h6 class="border-bottom pb-2">Recently Resolved</h6>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer</th>
+                                            <th>Subject</th>
+                                            <th>Resolved By</th>
+                                            <th>Resolved Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for complaint in resolved_complaints %}
+                                        <tr>
+                                            <td>{{ complaint.customer.user.get_full_name }}</td>
+                                            <td>
+                                                {{ complaint.subject }}
+                                                {% if complaint.resolution_notes %}
+                                                <br><small class="text-muted">{{ complaint.resolution_notes|truncatewords:8 }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if complaint.resolved_by %}
+                                                {{ complaint.resolved_by.user.get_full_name }}
+                                                {% else %}
+                                                <span class="text-muted">N/A</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ complaint.updated_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <span class="badge bg-success">Resolved</span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Success</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="successMessage">Operation completed successfully!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">Confirm Logout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to logout?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="{% url 'logout' %}" class="btn btn-danger">Yes, Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set current date for forms
+        const today = new Date().toISOString().split('T')[0];
+        const startDateInput = document.querySelector('input[name="start_date"]');
+        const endDateInput = document.querySelector('input[name="end_date"]');
+        
+        if (startDateInput) startDateInput.value = today;
+        if (endDateInput) {
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            endDateInput.value = nextWeek.toISOString().split('T')[0];
+        }
+        
+        // Set due date for payment forms (30 days from now)
+        const dueDateInput = document.querySelector('input[name="due_date"]');
+        if (dueDateInput) {
+            const nextMonth = new Date();
+            nextMonth.setDate(nextMonth.getDate() + 30);
+            dueDateInput.value = nextMonth.toISOString().split('T')[0];
+        }
+        
+        // Navigation between sections - FIXED VERSION
+        const navLinks = document.querySelectorAll('.sidebar .nav-link:not(.logout-btn)');
+        const contentSections = document.querySelectorAll('.content-section');
+        const sectionTitle = document.getElementById('section-title');
+        
+        const sectionTitles = {
+            'dashboard': 'Clerk Dashboard',
+            'subscriptions': 'Manage Subscriptions',
+            'payments': 'Record Payments',
+            'receipts': 'Generate Receipts',
+            'dues': 'Pending Dues',
+            'pause': 'Pause Newspaper',
+            'complaints': 'Handle Complaints'
+        };
+        
+        // Function to switch sections
+        function switchSection(targetSection) {
+            // Remove active class from all links and sections
+            navLinks.forEach(navLink => navLink.classList.remove('active'));
+            contentSections.forEach(section => section.classList.remove('active'));
+            
+            // Add active class to clicked link and target section
+            const activeLink = document.querySelector(`[data-section="${targetSection}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            const targetElement = document.getElementById(targetSection);
+            if (targetElement) {
+                targetElement.classList.add('active');
+            }
+            
+            // Update section title
+            if (sectionTitles[targetSection]) {
+                sectionTitle.textContent = sectionTitles[targetSection];
+            }
+        }
+        
+        // Add click event listeners to navigation links
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetSection = this.getAttribute('data-section');
+                if (targetSection) {
+                    switchSection(targetSection);
+                }
+            });
+        });
+        
+        // Mark payment as paid
+        document.querySelectorAll('.mark-paid-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const paymentId = this.getAttribute('data-id');
+                // Add AJAX call to mark payment as paid
+                console.log('Mark payment as paid:', paymentId);
+                // Show success modal
+                document.getElementById('successMessage').textContent = 'Payment marked as paid successfully!';
+                new bootstrap.Modal(document.getElementById('successModal')).show();
+            });
+        });
+        
+        // Pause/Resume subscription buttons in subscriptions section
+        document.querySelectorAll('.pause-subscription, .resume-subscription').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const subscriptionId = this.getAttribute('data-id');
+                const action = this.classList.contains('pause-subscription') ? 'pause' : 'resume';
+                
+                // Add AJAX call to pause/resume subscription
+                console.log(`${action} subscription:`, subscriptionId);
+                
+                document.getElementById('successMessage').textContent = 
+                    `Subscription ${action}d successfully!`;
+                new bootstrap.Modal(document.getElementById('successModal')).show();
+            });
+        });
+        
+        // Logout functionality
+        const logoutTrigger = document.getElementById('logoutTrigger');
+        const logoutModal = document.getElementById('logoutModal');
+        
+        if (logoutTrigger && logoutModal) {
+            const bsModal = new bootstrap.Modal(logoutModal);
+            
+            logoutTrigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                bsModal.show();
+            });
+        }
+
+        // Debug: Log available sections
+        console.log('Available sections:', Array.from(contentSections).map(s => s.id));
+        console.log('Navigation links:', Array.from(navLinks).map(l => l.getAttribute('data-section')));
+    });
+    // Add Subscription Form Handling
+document.addEventListener('DOMContentLoaded', function() {
+    // ... your existing JavaScript code ...
+    
+    // Handle subscription form submission
+    /*const saveSubscriptionBtn = document.getElementById('saveSubscription');
+    if (saveSubscriptionBtn) {
+        saveSubscriptionBtn.addEventListener('click', function() {
+            const form = document.querySelector('#addSubscriptionModal form');
+            if (form) {
+                form.submit();
+            }
+        });
+    }*/
+    
+    // Auto-fill delivery address if customer has previous address
+    const customerSelect = document.querySelector('select[name="customer"]');
+    const addressTextarea = document.querySelector('textarea[name="delivery_address"]');
+    
+    if (customerSelect && addressTextarea) {
+        customerSelect.addEventListener('change', function() {
+            // In a real application, you'd fetch the customer's address via AJAX
+            // For now, we'll just clear the address when customer changes
+            if (this.value === '') {
+                addressTextarea.value = '';
+            }
+        });
+    }
+    
+    // Set default end date to one year from start date
+    const startDateInput = document.querySelector('input[name="start_date"]');
+    const endDateInput = document.querySelector('input[name="end_date"]');
+    
+    if (startDateInput && endDateInput) {
+        startDateInput.addEventListener('change', function() {
+            if (this.value) {
+                const startDate = new Date(this.value);
+                const endDate = new Date(startDate);
+                endDate.setFullYear(endDate.getFullYear() + 1);
+                endDateInput.value = endDate.toISOString().split('T')[0];
+            }
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers to all download buttons
+    const downloadButtons = document.querySelectorAll('a[href*="download_receipt"]');
+    
+    downloadButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            // Optional: Show loading indicator
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            this.disabled = true;
+            
+            // Reset button after 3 seconds in case of failure
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }, 3000);
+        });
+    });
+});
+
+</script>
+{% endblock %}

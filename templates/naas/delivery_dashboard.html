@@ -1,0 +1,673 @@
+{% extends 'naas/base.html' %}
+
+{% block title %}Delivery Dashboard - NewsExpress{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .sidebar {
+        background-color: #2c3e50;
+        color: white;
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+    
+    .sidebar .nav-link {
+        color: #ecf0f1;
+        padding: 12px 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .sidebar .nav-link i {
+        margin-right: 10px;
+        width: 20px;
+    }
+    
+    .dashboard-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        border: none;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+    
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .content-section {
+        display: none;
+    }
+    
+    .content-section.active {
+        display: block;
+    }
+    .logout-btn {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    }
+
+    .logout-btn:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
+    .stats-card {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        border-left: 4px solid #007bff;
+    }
+
+    .stats-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .stats-info h4 {
+        margin: 0;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .stats-info p {
+        margin: 5px 0 0;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    .commission-details {
+        background: #e8f4fd;
+        padding: 15px;
+        border-radius: 5px;
+        border-left: 4px solid #3498db;
+    }
+
+    .commission-details p {
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 sidebar">
+            <div class="text-center p-3 border-bottom">
+                <h4><i class="fas fa-newspaper"></i> NewsDelivery</h4>
+                <p class="text-muted">Delivery Dashboard</p>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="today-route">
+                        <i class="fas fa-route"></i> Today's Route
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="deliveries">
+                        <i class="fas fa-truck-loading"></i> My Deliveries
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="commission">
+                        <i class="fas fa-truck-loading"></i> My Commission
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="profile">
+                        <i class="fas fa-user"></i> My Profile
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link logout-btn" href="#" id="logoutTrigger" style="background-color: #dc3545; color: white;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 px-4 py-3">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 id="section-title">Delivery Dashboard</h2>
+                    <p class="text-muted mb-0" id="current-date">Today: {% now "F d, Y" %}</p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                        {{ delivery_person.first_name|first }}{{ delivery_person.last_name|first }}
+                    </div>
+                    <div>
+                        <div>{{ delivery_person.user.get_full_name|default:delivery_person.user.username }}</div>
+                        <small class="text-muted">Delivery Person - Zone A</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section active">
+                <!-- Stats Cards -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card dashboard-card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-truck fa-2x mb-3"></i>
+                                <h3>{{ today_deliveries.count }}</h3>
+                                <p class="card-text">Today's Deliveries</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-check-circle fa-2x mb-3"></i>
+                                <h3>{{ completed_deliveries }}</h3>
+                                <p class="card-text">Completed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-2x mb-3"></i>
+                                <h3>{{ pending_deliveries }}</h3>
+                                <p class="card-text">Pending</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-dollar-sign fa-2x mb-3"></i>
+                                <h3>$245</h3>
+                                <p class="card-text">This Month's Commission</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Deliveries -->
+                <div class="card dashboard-card mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Today's Deliveries</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Address</th>
+                                        <th>Publications</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for delivery in today_deliveries %}
+                                    <tr>
+                                        <td>{{ delivery.subscription.customer.user.get_full_name }}</td>
+                                        <td>{{ delivery.subscription.delivery_address|default:"123 Main St" }}</td>
+                                        <td>{{ delivery.subscription.publication.title }}</td>
+                                        <td>
+                                            <span class="status-badge {% if delivery.delivery_status == 'completed' %}status-completed{% else %}status-pending{% endif %}">
+                                                {{ delivery.delivery_status|title }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            {% if delivery.status != 'delivered' %}
+                                            <button class="btn btn-sm btn-success mark-delivered-btn" data-delivery-id="{{ delivery.id }}">
+                                                Mark Delivered
+                                            </button>
+                                            {% else %}
+                                            <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No deliveries for today</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Route Section -->
+            <div id="today-route" class="content-section">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Today's Delivery Route</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Stop #</th>
+                                        <th>Customer</th>
+                                        <th>Address</th>
+                                        <th>Publications</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for delivery in today_deliveries %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ delivery.subscription.customer.user.get_full_name }}</td>
+                                        <td>{{ delivery.subscription.delivery_address|default:"123 Main St" }}</td>
+                                        <td>{{ delivery.subscription.publication.title }}</td>
+                                        <td>
+                                            <span class="status-badge {% if delivery.delivery_status == 'completed' %}status-completed{% else %}status-pending{% endif %}">
+                                                {{ delivery.delivery_status|title }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No deliveries scheduled for today</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Deliveries Section -->
+            <div id="deliveries" class="content-section">
+                <div class="card dashboard-card mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Today's Deliveries</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Address</th>
+                                        <th>Publication</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for delivery in today_deliveries %}
+                                    <tr>
+                                        <td>{{ delivery.subscription.customer.user.get_full_name }}</td>
+                                        <td>{{ delivery.subscription.delivery_address }}</td>
+                                        <td>{{ delivery.subscription.publication.title }}</td>
+                                        <td>
+                                            <span class="badge {% if delivery.delivery_status == 'completed' %}bg-success{% elif delivery.delivery_status == 'pending' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                                {{ delivery.get_delivery_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if delivery.delivery_status != 'completed' %}
+                                            <form method="POST" action="{% url 'mark_delivery_completed' delivery.delivery_id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    Mark Delivered
+                                                </button>
+                                            </form>
+                                            {% else %}
+                                            <span class="text-muted">Completed</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No deliveries scheduled for today</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--Commission Section-->
+
+            <div id="commission" class="content-section">
+                <!-- Commission Section -->
+            <!-- Commission History Section -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card dashboard-card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Commission History</h5>
+                            <span class="badge bg-primary">2.5% Commission Rate</span>
+                        </div>
+                        <div class="card-body">
+                            <!-- Commission Summary Stats -->
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <div class="card bg-success text-white">
+                                        <div class="card-body text-center py-3">
+                                            <h6 class="card-title">Total Paid</h6>
+                                            <h4 class="card-text">₹{{ total_paid_commission }}</h4>
+                                            <small>Commission Received</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-warning text-dark">
+                                        <div class="card-body text-center py-3">
+                                            <h6 class="card-title">Pending Approval</h6>
+                                            <h4 class="card-text">₹{{ total_pending_commission }}</h4>
+                                            <small>Awaiting Review</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-info text-white">
+                                        <div class="card-body text-center py-3">
+                                            <h6 class="card-title">Approved</h6>
+                                            <h4 class="card-text">₹{{ total_approved_commission }}</h4>
+                                            <small>Ready for Payment</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-secondary text-white">
+                                        <div class="card-body text-center py-3">
+                                            <h6 class="card-title">This Month</h6>
+                                            <h4 class="card-text">₹{{ potential_commission|floatformat:2 }}</h4>
+                                            <small>Estimated</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Commission History Table -->
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Period</th>
+                                            <th>Deliveries</th>
+                                            <th>Total Collections</th>
+                                            <th>Commission Amount</th>
+                                            <th>Status</th>
+                                            <th>Created Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for commission in commission_history %}
+                                        <tr>
+                                            <td>
+                                                {{ commission.period_start_date|date:"M j, Y" }} - 
+                                                {{ commission.period_end_date|date:"M j, Y" }}
+                                            </td>
+                                            <td>{{ commission.total_deliveries }}</td>
+                                            <td>₹{{ commission.total_collections }}</td>
+                                            <td>
+                                                <strong>₹{{ commission.commission_amount }}</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if commission.status == 'paid' %}bg-success
+                                                    {% elif commission.status == 'approved' %}bg-info
+                                                    {% else %}bg-warning{% endif %}">
+                                                    {{ commission.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>{{ commission.created_at|date:"M j, Y" }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">
+                                                <i class="fas fa-history fa-2x mb-3"></i>
+                                                <p>No commission history found</p>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Current Month Estimate -->
+                            <div class="alert alert-info mt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="alert-heading mb-1">Current Month Estimate ({{ month_start|date:"F Y" }})</h6>
+                                        <p class="mb-0">
+                                            Total Bill Amount: <strong>₹{{ total_bill_amount }}</strong> | 
+                                            Estimated Commission: <strong>₹{{ potential_commission|floatformat:2 }}</strong>
+                                            (2.5% of total bill amount)
+                                        </p>
+                                    </div>
+                                    <span class="badge bg-primary">Pending Calculation</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+
+            <!-- My Profile Section -->
+            <div id="profile" class="content-section">
+                <!-- Simple Profile Section -->
+<div class="card dashboard-card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">My Profile</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Basic Information -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <strong>Full Name:</strong>
+                    <p class="mb-1">{{ delivery_person.user.get_full_name }}</p>
+                </div>
+                <div class="mb-3">
+                    <strong>Email:</strong>
+                    <p class="mb-1">{{ delivery_person.user.email }}</p>
+                </div>
+                <div class="mb-3">
+                    <strong>Phone:</strong>
+                    <p class="mb-1">{{ delivery_person.phone_number|default:"Not provided" }}</p>
+                </div>
+            </div>
+
+            <!-- Work Details -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <strong>Employee ID:</strong>
+                    <p class="mb-1">{{ delivery_person.employee_id }}</p>
+                </div>
+                <div class="mb-3">
+                    <strong>Position:</strong>
+                    <p class="mb-1">
+                        <span class="badge bg-primary">{{ delivery_person.get_position_display }}</span>
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <strong>Status:</strong>
+                    <p class="mb-1">
+                        <span class="badge {% if delivery_person.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ delivery_person.is_active|yesno:"Active,Inactive" }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">Confirm Logout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to logout?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="{% url 'logout' %}" class="btn btn-danger">Yes, Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Navigation between sections
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contentSections = document.querySelectorAll('.content-section');
+        const sectionTitle = document.getElementById('section-title');
+        
+        const sectionTitles = {
+            'dashboard': 'Delivery Dashboard',
+            'today-route': "Today's Route",
+            'deliveries': 'My Deliveries',
+            'profile': 'My Profile'
+        };
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all links and sections
+                navLinks.forEach(navLink => navLink.classList.remove('active'));
+                contentSections.forEach(section => section.classList.remove('active'));
+                
+                // Add active class to clicked link and target section
+                this.classList.add('active');
+                const targetSection = this.getAttribute('data-section');
+                document.getElementById(targetSection).classList.add('active');
+                
+                // Update section title
+                if (sectionTitles[targetSection]) {
+                    sectionTitle.textContent = sectionTitles[targetSection];
+                }
+            });
+        });
+        
+        // Mark deliveries as completed
+        const markButtons = document.querySelectorAll('.mark-delivered-btn');
+        markButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const deliveryId = this.getAttribute('data-delivery-id');
+                const row = this.closest('tr');
+                
+                // Here you would typically make an AJAX call to update the delivery status
+                // For now, we'll just update the UI
+                row.querySelector('.status-badge').className = 'status-badge status-completed';
+                row.querySelector('.status-badge').textContent = 'Delivered';
+                this.textContent = 'Delivered';
+                this.classList.remove('btn-success');
+                this.classList.add('btn-outline-secondary');
+                this.disabled = true;
+                
+                alert('Delivery marked as completed!');
+                
+                // Update counters
+                const completedElement = document.querySelector('.stats-card:nth-child(2) h3');
+                const pendingElement = document.querySelector('.stats-card:nth-child(3) h3');
+                
+                let completed = parseInt(completedElement.textContent);
+                let pending = parseInt(pendingElement.textContent);
+                
+                completedElement.textContent = completed + 1;
+                pendingElement.textContent = pending - 1;
+            });
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+    // Get elements
+    const logoutTrigger = document.getElementById('logoutTrigger');
+    const logoutModal = document.getElementById('logoutModal');
+    
+    // Only setup if elements exist
+    if (logoutTrigger && logoutModal) {
+        // Create Bootstrap modal instance
+        const bsModal = new bootstrap.Modal(logoutModal);
+        
+        // Add click event to logout trigger
+        logoutTrigger.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default link behavior
+            bsModal.show(); // Show the modal
+        });
+        
+        // Optional: Add event to "Yes, Logout" button for any additional handling
+        const confirmLogoutBtn = logoutModal.querySelector('.btn-danger');
+        if (confirmLogoutBtn) {
+            confirmLogoutBtn.addEventListener('click', function() {
+                // The button already has href="{% url 'logout' %}" so it will redirect automatically
+                // You can add loading spinner or other UX here if needed
+                console.log('Logging out...');
+            });
+        }
+    } else {
+        console.error('Logout elements not found:', {
+            trigger: !!logoutTrigger,
+            modal: !!logoutModal
+        });
+    }
+});
+</script>
+{% endblock %}
